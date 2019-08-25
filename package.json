@@ -1,0 +1,20 @@
+{
+  "name": "bitsong-explorer-gql",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Angelo Recca <hello@bitsong.io>",
+  "license": "ISC",
+  "dependencies": {
+    "apollo-server": "^2.9.0",
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "express-graphql": "^0.9.0",
+    "graphql": "^14.5.3",
+    "mongoose": "^5.6.10",
+    "mongoose-paginate": "^5.0.3"
+  }
+}
