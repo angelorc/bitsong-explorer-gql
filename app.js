@@ -9,6 +9,7 @@ const graphQLSchema = require("./graphql/schema/index");
 const graphQLResolvers = require("./graphql/resolvers/index");
 
 const Validator = require("./models/ValidatorModel");
+const Account = require("./models/AccountModel");
 
 const typeDefs = gql`
   type ValidatorCommission {
@@ -25,8 +26,9 @@ const typeDefs = gql`
     details: String
   }
   type ValidatorDetails {
-    operatorAddress: String
-    consensusPubkey: String
+    operatorAddress: String!
+    delegatorAddress: String!
+    consensusPubkey: String!
     jailed: Boolean!
     status: String!
     tokens: String!
@@ -41,6 +43,10 @@ const typeDefs = gql`
     proposer_priority: String!
     details: ValidatorDetails
   }
+  type Account {
+    _id: ID!
+    address: String!
+  }
   type Query {
     validators(
       page: Int
@@ -48,6 +54,13 @@ const typeDefs = gql`
       sort: String
       sortDirection: String
     ): [Validator]
+    accounts(
+      page: Int
+      limit: Int
+      sort: String
+      sortDirection: String
+    ): [Account]
+    account(address: String!): Account!
     validator(operatorAddress: String!): Validator!
   }
 `;
@@ -105,6 +118,38 @@ const extractQueryParams = req => {
 
 const resolvers = {
   Query: {
+    account: (root, args, context) => {
+      const address = xss.inHTMLData(args.address);
+
+      return Account.findOne({
+        address: address
+      }).then(account => {
+        return {
+          ...account._doc,
+          _id: account.id
+        };
+      });
+    },
+    accounts: (root, args, context) => {
+      const queryParams = extractQueryParams(args);
+      const query = {};
+
+      return Account.paginate(query, {
+        page: queryParams.page,
+        limit: queryParams.limit
+      })
+        .then(accounts => {
+          return accounts.docs.map(account => {
+            return {
+              ...account._doc,
+              _id: account.id
+            };
+          });
+        })
+        .catch(err => {
+          throw err;
+        });
+    },
     validator: (root, args, context) => {
       const operatorAddress = xss.inHTMLData(args.operatorAddress);
 
