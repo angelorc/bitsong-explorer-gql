@@ -48,6 +48,7 @@ const typeDefs = gql`
       sort: String
       sortDirection: String
     ): [Validator]
+    validator(operatorAddress: String!): Validator!
   }
 `;
 
@@ -104,6 +105,18 @@ const extractQueryParams = req => {
 
 const resolvers = {
   Query: {
+    validator: (root, args, context) => {
+      const operatorAddress = xss.inHTMLData(args.operatorAddress);
+
+      return Validator.findOne({
+        "details.operatorAddress": operatorAddress
+      }).then(validator => {
+        return {
+          ...validator._doc,
+          _id: validator.id
+        };
+      });
+    },
     validators: (root, args, context) => {
       const queryParams = extractQueryParams(args);
       const query = {};
