@@ -4,6 +4,7 @@ const graphqlHTTP = require("express-graphql");
 const mongoose = require("mongoose");
 const { ApolloServer, gql } = require("apollo-server");
 const xss = require("xss-filters");
+const fetch = require("node-fetch");
 
 const graphQLSchema = require("./graphql/schema/index");
 const graphQLResolvers = require("./graphql/resolvers/index");
@@ -12,6 +13,15 @@ const Validator = require("./models/ValidatorModel");
 const Account = require("./models/AccountModel");
 
 const typeDefs = gql`
+  type Delegations {
+    delegators: [Delegator]
+    total_delegator_num: Int
+  }
+  type Delegator {
+    delegator_address: String
+    validator_address: String
+    shares: String
+  }
   type ValidatorCommission {
     rate: String!
     maxRate: String!
@@ -28,7 +38,7 @@ const typeDefs = gql`
   type ValidatorDetails {
     operatorAddress: String!
     delegatorAddress: String!
-    consensusPubkey: String!
+    consensusPubKey: String!
     jailed: Boolean!
     status: String!
     tokens: String!
@@ -54,6 +64,7 @@ const typeDefs = gql`
       sort: String
       sortDirection: String
     ): [Validator]
+    delegations(operatorAddress: String!): Delegations
     accounts(
       page: Int
       limit: Int
@@ -182,6 +193,30 @@ const resolvers = {
         .catch(err => {
           throw err;
         });
+    },
+    delegations: async (root, args, context) => {
+      const operatorAddress = xss.inHTMLData(args.operatorAddress);
+      const response = await fetch(
+        `http://lcd.testnet-2.bitsong.network/staking/validators/${operatorAddress}/delegations`
+      ).then(res => res.json());
+
+      if (response.result) {
+        return {
+          total_delegator_num: response.result.length,
+          delegators: response.result.map(delegator => {
+            return {
+              delegator_address: delegator.delegator_address,
+              validator_address: delegator.validator_address,
+              shares: delegator.shares
+            };
+          })
+        };
+      }
+
+      return {
+        total_delegator_num: 0,
+        delegators: []
+      };
     }
   }
 };
