@@ -1,8 +1,4 @@
 export default `
-type Account {
-    _id: ID!
-    address: String!
-  }
   type Delegations {
     delegators: [Delegator]
     total_delegator_num: Int
