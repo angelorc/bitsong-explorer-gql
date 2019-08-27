@@ -1,22 +1,39 @@
 {
-  "name": "bitsong-explorer-gql",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "name": "bitsong-explorer-gql-2",
+  "version": "0.1.0",
+  "description": "BitSong Explorer GraphQL",
   "author": "Angelo Recca <hello@bitsong.io>",
-  "license": "ISC",
+  "scripts": {
+    "start": "babel-watch src/server.js"
+  },
+  "license": "MIT",
   "dependencies": {
-    "apollo-server": "^2.9.0",
-    "body-parser": "^1.19.0",
-    "express": "^4.17.1",
-    "express-graphql": "^0.9.0",
-    "graphql": "^14.5.3",
-    "mongoose": "^5.6.10",
+    "apollo-server-express": "^1.3.4",
+    "babel-runtime": "^6.26.0",
+    "cors": "^2.8.4",
+    "dotenv": "^5.0.1",
+    "express": "^4.16.3",
+    "graphql": "^0.13.2",
+    "graphql-subscriptions": "^0.5.8",
+    "graphql-tools": "^2.24.0",
+    "merge-graphql-schemas": "^1.5.1",
+    "mongoose": "^5.0.14",
     "mongoose-paginate": "^5.0.3",
+    "morgan": "^1.9.0",
     "node-fetch": "^2.6.0",
+    "serve-favicon": "^2.5.0",
+    "serve-static": "^1.13.2",
+    "spdy": "^3.4.7",
+    "subscriptions-transport-ws": "^0.9.9",
     "xss-filters": "^1.2.7"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.4",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-polyfill": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "babel-watch": "^2.0.7"
   }
 }

@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
-const mongoosePaginate = require("mongoose-paginate");
+import mongoose from "mongoose";
+import mongoosePaginate from "mongoose-paginate";
 const Schema = mongoose.Schema;
 
 const accountSchema = new Schema(
@@ -23,4 +23,6 @@ accountSchema.virtual("success").get(function() {
 
 accountSchema.plugin(mongoosePaginate);
 
-module.exports = mongoose.model("Account", accountSchema);
+const Account = mongoose.model("Account", accountSchema);
+
+export default Account;

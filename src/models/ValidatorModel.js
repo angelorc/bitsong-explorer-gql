@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
-const mongoosePaginate = require("mongoose-paginate");
+import mongoose from "mongoose";
+import mongoosePaginate from "mongoose-paginate";
 const Schema = mongoose.Schema;
 
 /**
@@ -99,4 +99,6 @@ validatorSchema.index({ address: 1 }, { name: "validatorAddressIndex" });
 
 validatorSchema.plugin(mongoosePaginate);
 
-module.exports = mongoose.model("Validator", validatorSchema);
+const Validator = mongoose.model("Validator", validatorSchema);
+
+export default Validator;
