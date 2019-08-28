@@ -55,19 +55,20 @@ const extractQueryParams = req => {
 
 export default {
   Query: {
-    validator: (root, args, context) => {
-      const operatorAddress = xss.inHTMLData(args.operatorAddress);
+    // validator: (root, args, context) => {
+    //   const operatorAddress = xss.inHTMLData(args.operatorAddress);
 
-      return Validator.findOne({
-        "details.operatorAddress": operatorAddress
-      }).then(validator => {
-        // return {
-        //   ...validator._doc,
-        //   _id: validator.id
-        // };
-        return validator;
-      });
-    },
+    //   return Validator.findOne({
+    //     "details.operatorAddress": operatorAddress
+    //   }).then(validator => {
+    //     // return {
+    //     //   ...validator._doc,
+    //     //   _id: validator.id
+    //     // };
+    //     return validator;
+    //   });
+    // },
+    validator: (root, args, context) => {},
     validators: (root, args, context) => {
       const queryParams = extractQueryParams(args);
       const query = {};

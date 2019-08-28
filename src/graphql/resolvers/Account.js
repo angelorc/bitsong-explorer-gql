@@ -1,5 +1,5 @@
 import xss from "xss-filters";
-import config from "../../config"
+import config from "../../config";
 import fetch from "node-fetch";
 import Account from "../../models/AccountModel";
 
@@ -60,75 +60,99 @@ export default {
       const address = xss.inHTMLData(args.address);
 
       if (!address) {
-        throw Error("Invalid address")
+        throw Error("Invalid address");
       }
 
       try {
-        const available = await fetch(`${config.stargate}/bank/balances/${address}`).then(res => res.json()).then(response => {
-          if (response.error) {
-            throw response.error
-          }
+        const available = await fetch(
+          `${config.stargate}/bank/balances/${address}`
+        )
+          .then(res => res.json())
+          .then(response => {
+            if (response.error) {
+              throw response.error;
+            }
 
-          if (response.result.length === 0) {
-            return 0
-          }
+            if (response.result.length === 0) {
+              return 0;
+            }
 
-          return response.result[0].amount
-        })
+            return response.result[0].amount;
+          });
 
-        const bonded = await fetch(`${config.stargate}/staking/delegators/${address}/delegations`).then(res => res.json()).then(response => {
-          if (response.error) {
-            throw response.error
-          }
+        const bonded = await fetch(
+          `${config.stargate}/staking/delegators/${address}/delegations`
+        )
+          .then(res => res.json())
+          .then(response => {
+            if (response.error) {
+              throw response.error;
+            }
 
-          if (response.result.length === 0) {
-            return 0
-          }
+            if (response.result.length === 0) {
+              return 0;
+            }
 
-          let bondedBalance = 0
+            let bondedBalance = 0;
 
-          for (const balance of response.result) {
-            bondedBalance += parseFloat(balance.shares)
-          }
+            for (const balance of response.result) {
+              bondedBalance += parseFloat(balance.shares);
+            }
 
-          return bondedBalance
-        })
+            return bondedBalance;
+          });
 
-        const unbonding = await fetch(`${config.stargate}/staking/delegators/${address}/unbonding_delegations`).then(res => res.json()).then(response => {
-          if (response.error) {
-            throw response.error
-          }
+        const unbonding = await fetch(
+          `${config.stargate}/staking/delegators/${address}/unbonding_delegations`
+        )
+          .then(res => res.json())
+          .then(response => {
+            if (response.error) {
+              throw response.error;
+            }
 
-          if (response.result.length === 0) {
-            return 0
-          }
+            if (response.result.length === 0) {
+              return 0;
+            }
 
-          let unbondingBalance = 0
+            let unbondingBalance = 0;
 
-          // for (const balance of response.result) {
-          //   bondedBalance += parseFloat(balance.shares)
-          // }
+            const unbondings = response.result;
 
-          return unbondingBalance
-        })
+            for (const unbond of unbondings) {
+              for (const entry of unbond.entries) {
+                unbondingBalance += parseFloat(entry.balance);
+              }
+            }
 
-        const rewards = await fetch(`${config.stargate}/distribution/delegators/${address}/rewards`).then(res => res.json()).then(response => {
-          if (response.error) {
-            throw response.error
-          }
+            return unbondingBalance;
+          });
 
-          if (response.result.rewards === null) {
-            return 0
-          }
+        const rewards = await fetch(
+          `${config.stargate}/distribution/delegators/${address}/rewards`
+        )
+          .then(res => res.json())
+          .then(response => {
+            if (response.error) {
+              throw response.error;
+            }
 
-          if (response.result.rewards[0].reward.length === 0) {
-            return 0
-          }
+            if (response.result.rewards === null) {
+              return 0;
+            }
 
-          return response.result.rewards[0].reward[0].amount
-        })
+            if (response.result.rewards[0].reward.length === 0) {
+              return 0;
+            }
 
-        const total = parseFloat(available) + parseFloat(bonded) + parseFloat(unbonding) + parseFloat(rewards)
+            return response.result.rewards[0].reward[0].amount;
+          });
+
+        const total =
+          parseFloat(available) +
+          parseFloat(bonded) +
+          parseFloat(unbonding) +
+          parseFloat(rewards);
 
         return {
           address: address,
@@ -139,9 +163,9 @@ export default {
             rewards: rewards,
             total: total
           }
-        }
+        };
       } catch (error) {
-        throw error
+        throw error;
       }
     },
     accounts: (root, args, context) => {
@@ -149,9 +173,9 @@ export default {
       const query = {};
 
       return Account.paginate(query, {
-          page: queryParams.page,
-          limit: queryParams.limit
-        })
+        page: queryParams.page,
+        limit: queryParams.limit
+      })
         .then(accounts => {
           return accounts.docs.map(account => {
             // return {
