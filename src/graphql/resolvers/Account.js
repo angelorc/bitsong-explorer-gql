@@ -134,7 +134,9 @@ export default {
       return await getUnbondingDelegations(account.address);
     },
     redelegations: async account => {
-      return await getRedelegations();
+      const redelegations = await getRedelegations();
+
+      return redelegations.filter(v => v.delegator_address === account.address);
     }
   },
   Query: {
