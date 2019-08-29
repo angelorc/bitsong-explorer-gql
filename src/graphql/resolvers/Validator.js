@@ -1,6 +1,14 @@
 import xss from "xss-filters";
+import * as bech32 from "bech32";
+import config from "../../config";
 import fetch from "node-fetch";
+import {
+  sha256
+} from "js-sha256";
 import Validator from "../../models/ValidatorModel";
+import {
+  ReplaceFieldWithFragment
+} from "@kamilkisiela/graphql-tools";
 
 const extractQueryParams = req => {
   // page parameter
@@ -53,48 +61,136 @@ const extractQueryParams = req => {
   };
 };
 
-export default {
-  Query: {
-    // validator: (root, args, context) => {
-    //   const operatorAddress = xss.inHTMLData(args.operatorAddress);
+const pubkeyToBech32 = (pubkey, prefix = "bitsongpub") => {
+  // '1624DE6420' is ed25519 pubkey prefix
+  let pubkeyAminoPrefix = Buffer.from("1624DE6420", "hex");
+  let buffer = Buffer.alloc(37);
+  pubkeyAminoPrefix.copy(buffer, 0);
+  Buffer.from(pubkey.value, "base64").copy(buffer, pubkeyAminoPrefix.length);
+  return bech32.encode(prefix, bech32.toWords(buffer));
+}
 
-    //   return Validator.findOne({
-    //     "details.operatorAddress": operatorAddress
-    //   }).then(validator => {
-    //     // return {
-    //     //   ...validator._doc,
-    //     //   _id: validator.id
-    //     // };
-    //     return validator;
-    //   });
-    // },
-    validator: (root, args, context) => {},
-    validators: (root, args, context) => {
-      const queryParams = extractQueryParams(args);
-      const query = {};
+const bech32PubkeyToAddress = (consensus_pubkey) => {
+  // '1624DE6420' is ed25519 pubkey prefix
+  let pubkeyAminoPrefix = Buffer.from("1624DE6420", "hex");
+  let buffer = Buffer.from(bech32.fromWords(bech32.decode(consensus_pubkey).words));
+  let test = buffer.slice(pubkeyAminoPrefix.length).toString("base64");
+  return sha256(Buffer.from(test, "base64"))
+    .substring(0, 40)
+    .toUpperCase();
+}
 
-      return Validator.paginate(query, {
-        page: queryParams.page,
-        limit: queryParams.limit,
-        sort: { [queryParams.sort]: queryParams.sortDirection }
+const operatorAddrToAccoutAddr = (operatorAddr, prefix = "bitsong") => {
+  const address = bech32.decode(operatorAddr);
+  return bech32.encode(prefix, address.words);
+}
+
+const getValidatorProfileUrl = identity => {
+  if (identity.length == 16) {
+    return fetch(`https://keybase.io/_/api/1.0/user/lookup.json?key_suffix=${identity}&fields=pictures`)
+      .then(res => res.json())
+      .then(response => {
+        let them = response.them;
+        return (
+          them &&
+          them.length &&
+          them[0].pictures &&
+          them[0].pictures.primary &&
+          them[0].pictures.primary.url
+        );
       })
-        .then(validators => {
-          return validators.docs.map(validator => {
-            // return {
-            //   ...validator._doc,
-            //   _id: validator.id
-            // };
-            return validator;
-          });
+  }
+
+  return null;
+}
+
+const getTendermintValidators = () => fetch(`${config.rpc}/validators`)
+  .then(res => res.json())
+  .then(res => res.result.validators);
+
+const getStargateValidators = () => fetch(`${config.stargate}/staking/validators`)
+  .then(res => res.json())
+  .then(res => res.result);
+
+const getStargateValidator = (validatorAddr) => fetch(`${config.stargate}/staking/validators/${validatorAddr}`)
+  .then(res => res.json())
+  .then(res => {
+    if (res.error) throw res.error
+
+    return res.result
+  });
+
+const getStargateDelegations = (validatorAddr) => fetch(`${config.stargate}/staking/validators/${validatorAddr}/delegations`)
+  .then(res => res.json())
+  .then(res => {
+    if (res.error) throw res.error
+
+    return res.result
+  });
+
+export default {
+  ValidatorDescription: {
+    avatar: (validatorDescription) => {
+      const identity = validatorDescription.identity
+
+      if (identity)
+        return getValidatorProfileUrl(validatorDescription.identity)
+
+      return null
+    }
+  },
+  ValidatorDetails: {
+    delegator_address: (validator) => {
+      return operatorAddrToAccoutAddr(validator.operator_address)
+    },
+    self_shares: async (validator) => {
+      const delegator_address = operatorAddrToAccoutAddr(validator.operator_address)
+      const delegations = await getStargateDelegations(validator.operator_address)
+
+      return delegations.find(v => v.delegator_address === delegator_address).shares
+    }
+  },
+  Validator: {
+    delegations: async (validator) => {
+      return await getStargateDelegations(validator.details.operator_address)
+    }
+  },
+  Query: {
+    validator: async (root, args, context) => {
+      try {
+        const tendermintValidators = await getTendermintValidators();
+        const validator = await getStargateValidator(args.operatorAddress)
+        const tendermintData = tendermintValidators.find(v => v.address === bech32PubkeyToAddress(validator.consensus_pubkey))
+
+        return {
+          ...tendermintData,
+          details: validator
+        }
+      } catch (err) {
+        throw err
+      }
+    },
+    validators: async (root, args, context) => {
+      try {
+        const tendermintValidators = await getTendermintValidators();
+        const stargateValidators = await getStargateValidators();
+
+        return tendermintValidators.map((tmVal) => {
+          const validatorDetails = stargateValidators.find(v => v.consensus_pubkey === pubkeyToBech32(tmVal.pub_key, "bitsongvalconspub"))
+
+          return {
+            ...tmVal,
+            details: validatorDetails
+          }
         })
-        .catch(err => {
-          throw err;
-        });
+      } catch (err) {
+        throw err
+      }
     },
     delegations: async (root, args, context) => {
       const operatorAddress = xss.inHTMLData(args.operatorAddress);
       const response = await fetch(
-        `http://lcd.testnet-2.bitsong.network/staking/validators/${operatorAddress}/delegations`
+        `${config.stargate}/staking/validators/${operatorAddress}/delegations`
       ).then(res => res.json());
 
       if (response.result) {
