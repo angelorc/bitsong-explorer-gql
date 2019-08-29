@@ -1,4 +1,15 @@
 export default `
+  type UnbondingDelegationEntry {
+    creation_height: String
+    completion_time: String
+    initial_balance: String
+    balance: String
+  }
+  type UnbondingDelegation {
+    delegator_address: String
+    validator_address: String
+    entries: [UnbondingDelegationEntry]
+  }
   type Delegation {
     delegator_address: String
     validator_address: String
@@ -21,7 +32,7 @@ export default `
     max_change_rate: Float
   }
   type ValidatorCommission {
-    commission: ValidatorCommissionRate
+    commission_rates: ValidatorCommissionRate
     update_time: String
   }
   type ValidatorDetails {
@@ -46,5 +57,6 @@ export default `
     proposer_priority: String
     details: ValidatorDetails
     delegations: [Delegation]
+    unbonding_delegations: [UnbondingDelegation]
   }
 `;
