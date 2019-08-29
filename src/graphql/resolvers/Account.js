@@ -3,170 +3,151 @@ import config from "../../config";
 import fetch from "node-fetch";
 import Account from "../../models/AccountModel";
 
-const extractQueryParams = req => {
-  // page parameter
-  let page = parseInt(xss.inHTMLData(req.page));
-  if (isNaN(page) || page < 1) {
-    page = 1;
-  }
+const getDelegations = delegatorAddr =>
+  fetch(`${config.stargate}/staking/delegators/${delegatorAddr}/delegations`)
+    .then(res => res.json())
+    .then(res => {
+      if (res.error) throw res.error;
 
-  // limit parameter
-  let limit = parseInt(xss.inHTMLData(req.limit));
-  if (isNaN(limit)) {
-    limit = 25;
-  } else if (limit > 50) {
-    limit = 50;
-  } else if (limit < 1) {
-    limit = 1;
-  }
+      return res.result;
+    });
 
-  // sort parameter
-  let sort = xss.inHTMLData(req.sort);
-  let sortDirection = xss.inHTMLData(req.sortDirection);
+const getUnbondingDelegations = delegatorAddr =>
+  fetch(
+    `${config.stargate}/staking/delegators/${delegatorAddr}/unbonding_delegations`
+  )
+    .then(res => res.json())
+    .then(res => {
+      if (res.error) throw res.error;
 
-  switch (sort) {
-    case "moniker":
-      sort = "details.description.moniker";
-      break;
-    case "address":
-      sort = "address";
-      break;
-    case "voting_power":
-      sort = "voting_power";
-      break;
-    default:
-      sort = "address";
-  }
+      return res.result;
+    });
 
-  switch (sortDirection) {
-    case "asc":
-      sortDirection = 1;
-      break;
-    default:
-      sortDirection = -1;
-  }
+const getRedelegations = delegatorAddr =>
+  fetch(`${config.stargate}/staking/redelegations`)
+    .then(res => res.json())
+    .then(res => {
+      if (res.error) throw res.error;
 
-  return {
-    page,
-    limit,
-    sort,
-    sortDirection
-  };
-};
+      return res.result;
+    });
 
 export default {
+  Balances: {
+    available: account => {
+      return fetch(`${config.stargate}/bank/balances/${account.address}`)
+        .then(res => res.json())
+        .then(response => {
+          if (response.error) {
+            throw response.error;
+          }
+
+          if (response.result.length === 0) {
+            return 0;
+          }
+
+          return response.result[0].amount;
+        });
+    },
+    bonded: account => {
+      return fetch(
+        `${config.stargate}/staking/delegators/${account.address}/delegations`
+      )
+        .then(res => res.json())
+        .then(response => {
+          if (response.error) {
+            throw response.error;
+          }
+
+          if (response.result.length === 0) {
+            return 0;
+          }
+
+          let bondedBalance = 0;
+
+          for (const balance of response.result) {
+            bondedBalance += parseFloat(balance.shares);
+          }
+
+          return bondedBalance;
+        });
+    },
+    unbonding: account => {
+      return fetch(
+        `${config.stargate}/staking/delegators/${account.address}/unbonding_delegations`
+      )
+        .then(res => res.json())
+        .then(response => {
+          if (response.error) {
+            throw response.error;
+          }
+
+          if (response.result.length === 0) {
+            return 0;
+          }
+
+          let unbondingBalance = 0;
+
+          const unbondings = response.result;
+
+          for (const unbond of unbondings) {
+            for (const entry of unbond.entries) {
+              unbondingBalance += parseFloat(entry.balance);
+            }
+          }
+
+          return unbondingBalance;
+        });
+    },
+    rewards: account => {
+      return fetch(
+        `${config.stargate}/distribution/delegators/${account.address}/rewards`
+      )
+        .then(res => res.json())
+        .then(response => {
+          if (response.error) {
+            throw response.error;
+          }
+
+          if (response.result.rewards === null) {
+            return 0;
+          }
+
+          if (response.result.rewards[0].reward.length === 0) {
+            return 0;
+          }
+
+          return response.result.rewards[0].reward[0].amount;
+        });
+    }
+  },
+  Account: {
+    balances: account => {
+      return {
+        ...account
+      };
+    },
+    delegations: async account => {
+      return await getDelegations(account.address);
+    },
+    unbonding_delegations: async account => {
+      return await getUnbondingDelegations(account.address);
+    },
+    redelegations: async account => {
+      return await getRedelegations();
+    }
+  },
   Query: {
     account: async (root, args) => {
-      const address = xss.inHTMLData(args.address);
+      const address = args.address;
 
       if (!address) {
         throw Error("Invalid address");
       }
 
-      try {
-        const available = await fetch(
-          `${config.stargate}/bank/balances/${address}`
-        )
-          .then(res => res.json())
-          .then(response => {
-            if (response.error) {
-              throw response.error;
-            }
-
-            if (response.result.length === 0) {
-              return 0;
-            }
-
-            return response.result[0].amount;
-          });
-
-        const bonded = await fetch(
-          `${config.stargate}/staking/delegators/${address}/delegations`
-        )
-          .then(res => res.json())
-          .then(response => {
-            if (response.error) {
-              throw response.error;
-            }
-
-            if (response.result.length === 0) {
-              return 0;
-            }
-
-            let bondedBalance = 0;
-
-            for (const balance of response.result) {
-              bondedBalance += parseFloat(balance.shares);
-            }
-
-            return bondedBalance;
-          });
-
-        const unbonding = await fetch(
-          `${config.stargate}/staking/delegators/${address}/unbonding_delegations`
-        )
-          .then(res => res.json())
-          .then(response => {
-            if (response.error) {
-              throw response.error;
-            }
-
-            if (response.result.length === 0) {
-              return 0;
-            }
-
-            let unbondingBalance = 0;
-
-            const unbondings = response.result;
-
-            for (const unbond of unbondings) {
-              for (const entry of unbond.entries) {
-                unbondingBalance += parseFloat(entry.balance);
-              }
-            }
-
-            return unbondingBalance;
-          });
-
-        const rewards = await fetch(
-          `${config.stargate}/distribution/delegators/${address}/rewards`
-        )
-          .then(res => res.json())
-          .then(response => {
-            if (response.error) {
-              throw response.error;
-            }
-
-            if (response.result.rewards === null) {
-              return 0;
-            }
-
-            if (response.result.rewards[0].reward.length === 0) {
-              return 0;
-            }
-
-            return response.result.rewards[0].reward[0].amount;
-          });
-
-        const total =
-          parseFloat(available) +
-          parseFloat(bonded) +
-          parseFloat(unbonding) +
-          parseFloat(rewards);
-
-        return {
-          address: address,
-          balances: {
-            available: available,
-            bonded: bonded,
-            unbonding: unbonding,
-            rewards: rewards,
-            total: total
-          }
-        };
-      } catch (error) {
-        throw error;
-      }
+      return {
+        address: address
+      };
     },
     accounts: (root, args, context) => {
       const queryParams = extractQueryParams(args);
@@ -178,10 +159,6 @@ export default {
       })
         .then(accounts => {
           return accounts.docs.map(account => {
-            // return {
-            //   ...account._doc,
-            //   _id: account.id
-            // };
             return account;
           });
         })

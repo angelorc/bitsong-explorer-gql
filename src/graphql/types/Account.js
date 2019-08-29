@@ -4,11 +4,41 @@ export default `
     bonded: String
     unbonding: String
     rewards: String
-    total: String
+  }
+  type UnbondingDelegationEntry {
+    creation_height: String
+    completion_time: String
+    initial_balance: String
+    balance: String
+  }
+  type UnbondingDelegation {
+    delegator_address: String
+    validator_address: String
+    entries: [UnbondingDelegationEntry]
+  }
+  type Delegation {
+    delegator_address: String
+    validator_address: String
+    shares: Float
+  }
+  type RedelegationEntry {
+    creation_heignt: Int
+    completition_time: String
+    initial_balance: String
+    shares_dst: String
+    balance: String
+  }
+  type Redelegation {
+    delegator_address: String
+    validator_src_address: String
+    validator_dst_address: String
+    entries: [RedelegationEntry]
   }
   type Account {
-    _id: ID!
-    address: String!
+    address: String
     balances: Balances
+    delegations: [Delegation]
+    unbonding_delegations: [UnbondingDelegation]
+    redelegations: [Redelegation]
   }
 `;
