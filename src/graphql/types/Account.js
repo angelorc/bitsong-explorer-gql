@@ -22,8 +22,8 @@ export default `
     shares: Float
   }
   type RedelegationEntry {
-    creation_heignt: Int
-    completition_time: String
+    creation_height: Int
+    completion_time: String
     initial_balance: String
     shares_dst: String
     balance: String
