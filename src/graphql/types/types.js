@@ -9,6 +9,10 @@ export default `
     shares: String
   }
   type Query {
+    blocks(
+      page: Int
+      limit: Int
+    ): [Block]
     validators(
       page: Int
       limit: Int
