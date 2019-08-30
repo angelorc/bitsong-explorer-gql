@@ -26,15 +26,24 @@ const extractQueryParams = req => {
 
 export default {
   Query: {
+    block: (root, args, context) => {
+      const height = parseInt(args.height)
+
+      return Block.findOne({
+        height: height
+      })
+    },
     blocks: (root, args, context) => {
       const queryParams = extractQueryParams(args);
       const query = {};
 
       return Block.paginate(query, {
-        page: queryParams.page,
-        limit: queryParams.limit,
-        sort: { height: -1 }
-      })
+          page: queryParams.page,
+          limit: queryParams.limit,
+          sort: {
+            height: -1
+          }
+        })
         .then(blocks => {
           return blocks.docs.map(block => {
             return block;

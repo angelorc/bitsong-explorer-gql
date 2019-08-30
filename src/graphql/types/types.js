@@ -13,6 +13,7 @@ export default `
       page: Int
       limit: Int
     ): [Block]
+    block(height: Int): Block
     validators(
       page: Int
       limit: Int
