@@ -1,37 +1,33 @@
-import config from "../../config";
+import {
+  Pagination,
+  paginationResolvers
+} from "@limit0/mongoose-graphql-pagination";
+import {
+  CursorType
+} from "@limit0/graphql-custom-types";
 import Block from "../../models/BlockModel";
 
-const extractQueryParams = req => {
-  // page parameter
-  let page = parseInt(req.page);
-  if (isNaN(page) || page < 1) {
-    page = 1;
-  }
-
-  // limit parameter
-  let limit = parseInt(req.limit);
-  if (isNaN(limit)) {
-    limit = 25;
-  } else if (limit > 50) {
-    limit = 50;
-  } else if (limit < 1) {
-    limit = 1;
-  }
-
-  return {
-    page,
-    limit
-  };
-};
-
 export default {
+  Cursor: CursorType,
+  BlockConnection: paginationResolvers.connection,
   Query: {
+    allBlocks: (root, {
+      pagination,
+      sort
+    }) => new Pagination(Block, {
+      pagination,
+      sort
+    }, {
+      sort: {
+        field: 'height'
+      },
+    }),
     block: (root, args, context) => {
-      const height = parseInt(args.height)
+      const height = parseInt(args.height);
 
       return Block.findOne({
         height: height
-      })
+      });
     },
     blocks: (root, args, context) => {
       const queryParams = extractQueryParams(args);
