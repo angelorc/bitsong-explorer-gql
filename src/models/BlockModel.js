@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import mongoosePaginate from "mongoose-paginate";
 const Schema = mongoose.Schema;
 
 const blockSchema = new Schema(
@@ -35,6 +36,8 @@ blockSchema.virtual("success").get(function() {
     return this.error === "";
   }
 });
+
+blockSchema.plugin(mongoosePaginate);
 
 const Block = mongoose.model("Block", blockSchema);
 

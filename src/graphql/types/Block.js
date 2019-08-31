@@ -1,13 +1,7 @@
 export default `
   type BlockConnection {
-    totalCount: Int!
-    edges: [BlockEdge]!
+    docs: [Block]!
     pageInfo: PageInfo!
-  }
-
-  type BlockEdge {
-    node: Block!
-    cursor: Cursor!
   }
 
   type Block {
@@ -19,7 +13,7 @@ export default `
   }
 
   input BlockSortInput {
-    cursorField: BlockSortField! = height
+    field: BlockSortField! = height
     direction: Int! = -1
   }
 

@@ -1,12 +1,26 @@
-import { mrResolve } from "mongo-relay-connection";
 import Block from "../../models/BlockModel";
 
 export default {
   Query: {
     allBlocks: async (_, args) => {
       const query = {};
+      const results = await Block.paginate(query, {
+        page: args.pagination.page,
+        limit: args.pagination.limit,
+        sort: {
+          [args.sort.field]: args.sort.direction
+        }
+      });
 
-      return mrResolve(args.pagination, Block, query, args.sort);
+      return {
+        docs: results.docs,
+        pageInfo: {
+          total: results.total,
+          limit: results.limit,
+          page: results.page,
+          pages: results.pages
+        }
+      };
     },
     block: (root, args, context) => {
       const height = parseInt(args.height);
