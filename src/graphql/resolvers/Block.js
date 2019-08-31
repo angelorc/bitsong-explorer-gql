@@ -1,27 +1,13 @@
-import {
-  Pagination,
-  paginationResolvers
-} from "@limit0/mongoose-graphql-pagination";
-import {
-  CursorType
-} from "@limit0/graphql-custom-types";
+import { mrResolve } from "mongo-relay-connection";
 import Block from "../../models/BlockModel";
 
 export default {
-  Cursor: CursorType,
-  BlockConnection: paginationResolvers.connection,
   Query: {
-    allBlocks: (root, {
-      pagination,
-      sort
-    }) => new Pagination(Block, {
-      pagination,
-      sort
-    }, {
-      sort: {
-        field: 'height'
-      },
-    }),
+    allBlocks: async (_, args) => {
+      const query = {};
+
+      return mrResolve(args.pagination, Block, query, args.sort);
+    },
     block: (root, args, context) => {
       const height = parseInt(args.height);
 
@@ -34,12 +20,12 @@ export default {
       const query = {};
 
       return Block.paginate(query, {
-          page: queryParams.page,
-          limit: queryParams.limit,
-          sort: {
-            height: -1
-          }
-        })
+        page: queryParams.page,
+        limit: queryParams.limit,
+        sort: {
+          height: -1
+        }
+      })
         .then(blocks => {
           return blocks.docs.map(block => {
             return block;

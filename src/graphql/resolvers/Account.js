@@ -1,4 +1,3 @@
-import xss from "xss-filters";
 import config from "../../config";
 import fetch from "node-fetch";
 import Account from "../../models/AccountModel";

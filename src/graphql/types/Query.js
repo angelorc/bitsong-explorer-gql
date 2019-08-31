@@ -1,3 +1,4 @@
+// ConnectionArgs: {after: String, first: Int, before: String, last: Int}
 export default `
   type Query {
     allBlocks(pagination: PaginationInput = {}, sort: BlockSortInput = {}): BlockConnection!
@@ -22,4 +23,4 @@ export default `
     account(address: String!): Account!
     validator(operatorAddress: String!): Validator!
   }
-`
+`;

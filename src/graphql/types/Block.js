@@ -19,8 +19,8 @@ export default `
   }
 
   input BlockSortInput {
-    field: BlockSortField! = height
-    order: Int! = -1
+    cursorField: BlockSortField! = height
+    direction: Int! = -1
   }
 
   enum BlockSortField {
