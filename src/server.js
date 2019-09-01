@@ -10,12 +10,28 @@ import spdy from 'spdy'
 import favicon from 'serve-favicon'
 */
 import serveStatic from "serve-static";
-import { createServer } from "http";
-import { mergeTypes, mergeResolvers, fileLoader } from "merge-graphql-schemas";
-import { execute, subscribe } from "graphql";
-import { SubscriptionServer } from "subscriptions-transport-ws";
-import { graphiqlExpress, graphqlExpress } from "apollo-server-express";
-import { makeExecutableSchema } from "graphql-tools";
+import {
+  createServer
+} from "http";
+import {
+  mergeTypes,
+  mergeResolvers,
+  fileLoader
+} from "merge-graphql-schemas";
+import {
+  execute,
+  subscribe
+} from "graphql";
+import {
+  SubscriptionServer
+} from "subscriptions-transport-ws";
+import {
+  graphiqlExpress,
+  graphqlExpress
+} from "apollo-server-express";
+import {
+  makeExecutableSchema
+} from "graphql-tools";
 
 // CONFIG
 require("dotenv").config();
@@ -33,7 +49,7 @@ const resolvers = mergeResolvers(
 // DATABASE CONNECTION
 mongoose.Promise = global.Promise;
 mongoose
-  .connect(`mongodb://localhost:27017/bitsong`)
+  .connect(`mongodb://localhost:27017/bitsong?replicaSet=replica01`)
   .then(() => {
     console.log(`Connection to database successful!`);
     console.log("----------------------------------");
@@ -57,7 +73,9 @@ const schema = makeExecutableSchema({
   resolvers
 });
 
-app.use("/graphql", express.json(), graphqlExpress({ schema }));
+app.use("/graphql", express.json(), graphqlExpress({
+  schema
+}));
 app.use(
   "/graphiql",
   graphiqlExpress({
@@ -86,15 +104,12 @@ const ws = createServer(app);
 ws.listen(PORT, () => {
   console.log(`Apollo Server is now running on http://localhost:${PORT}`);
   // Set up the WebSocket for handling GraphQL subscriptions
-  new SubscriptionServer(
-    {
-      execute,
-      subscribe,
-      schema
-    },
-    {
-      server: ws,
-      path: "/subscriptions"
-    }
-  );
+  new SubscriptionServer({
+    execute,
+    subscribe,
+    schema
+  }, {
+    server: ws,
+    path: "/subscriptions"
+  });
 });

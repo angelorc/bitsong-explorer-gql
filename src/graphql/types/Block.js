@@ -1,4 +1,10 @@
 export default `
+  scalar Date
+
+  type Subscription {
+    blockAdded: Block
+  }
+
   type BlockConnection {
     docs: [Block]!
     pageInfo: PageInfo!
@@ -7,7 +13,7 @@ export default `
   type Block {
     height: Int
     hash: String
-    time: String
+    time: Date
     num_txs: Int
     proposer: String
   }

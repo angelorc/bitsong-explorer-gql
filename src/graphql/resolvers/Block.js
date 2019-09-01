@@ -1,6 +1,31 @@
 import Block from "../../models/BlockModel";
+import {
+  PubSub
+} from 'graphql-subscriptions';
+import asyncify from 'callback-to-async-iterator';
+
+const listenToNewBlocks = (callback) => {
+  return Block.watch().on('change', data => {
+    callback(data.fullDocument)
+  });
+}
+
+listenToNewBlocks(block => {
+  pubsub.publish(BLOCK_ADDED, {
+    blockAdded: block
+  });
+})
+
+const pubsub = new PubSub();
+
+const BLOCK_ADDED = 'BLOCK_ADDED';
 
 export default {
+  Subscription: {
+    blockAdded: {
+      subscribe: () => pubsub.asyncIterator([BLOCK_ADDED]),
+    },
+  },
   Query: {
     allBlocks: async (_, args) => {
       const query = {};
@@ -34,12 +59,12 @@ export default {
       const query = {};
 
       return Block.paginate(query, {
-        page: queryParams.page,
-        limit: queryParams.limit,
-        sort: {
-          height: -1
-        }
-      })
+          page: queryParams.page,
+          limit: queryParams.limit,
+          sort: {
+            height: -1
+          }
+        })
         .then(blocks => {
           return blocks.docs.map(block => {
             return block;
