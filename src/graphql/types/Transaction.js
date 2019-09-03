@@ -1,4 +1,61 @@
+// replica01:PRIMARY> db.messages.distinct("type");
+// [
+// 	"cosmos-sdk/MsgBeginRedelegate",
+// 	"cosmos-sdk/MsgCreateValidator",
+// 	"cosmos-sdk/MsgUndelegate",
+// 	"cosmos-sdk/MsgWithdrawDelegationReward",
+// 	*****"cosmos-sdk/MsgDelegate",
+// 	*****"cosmos-sdk/MsgEditValidator",
+// 	*****"cosmos-sdk/MsgUnjail",
+// 	*****"cosmos-sdk/MsgWithdrawValidatorCommission"
+// ]
+
+// type MsgWithdrawDelegationReward implements MsgValue {
+//   delegator_address: String
+//   validator_address: String
+// }
+
 export default `
+  type Amount {
+    denom: String
+    amount: String
+  }
+
+  type MsgWithdrawValidatorCommission {
+    validator_address: String
+  }
+
+  type MsgDelegate {
+    delegator_address: String
+    validator_address: String
+    amount: Amount
+  }
+
+  type MsgUnjail {
+    address: String
+  }
+
+  type MsgEditValidatorDescription {
+    moniker: String
+    identity: String
+    website: String
+    details: String
+  }
+
+  type MsgEditValidator {
+    Description: MsgEditValidatorDescription
+    address: String
+    commission_rate: String
+    min_self_delegation: String
+  }
+
+  union MsgValue = MsgEditValidator | MsgDelegate | MsgUnjail | MsgWithdrawValidatorCommission
+
+  type Msg {
+    type: String
+    value: MsgValue
+  }
+
   type Subscription {
     transactionAdded: Transaction
   }
@@ -10,42 +67,6 @@ export default `
 
   type Signature {
     address: String
-  }
-
-  type MsgEditValidatorDescription {
-    moniker: String
-    identity: String
-    website: String
-    details: String
-  }
-
-  type MsgEditValidator implements MsgValue {
-    Description: MsgEditValidatorDescription
-    address: String
-    commission_rate: String
-    min_self_delegation: String
-  }
-
-  type MsgUnjail implements MsgValue {
-    address: String
-  }
-
-  type MsgWithdrawDelegationReward implements MsgValue {
-    delegator_address: String
-    validator_address: String
-  }
-
-  type MsgWithdrawValidatorCommission implements MsgValue {
-    validator_address: String
-  }
-
-  interface MsgValue {
-    value: String
-  }
-
-  type Msg {
-    type: String
-    value: MsgValue
   }
 
   type Transaction {

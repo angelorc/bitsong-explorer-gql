@@ -1,5 +1,8 @@
 import Transaction from "../../models/TransactionModel";
-import { PubSub } from "graphql-subscriptions";
+import Message from "../../models/MessageModel";
+import {
+  PubSub
+} from "graphql-subscriptions";
 
 const pubsub = new PubSub();
 const TRANSACITON_ADDED = "TRANSACITON_ADDED";
@@ -22,14 +25,16 @@ export default {
       subscribe: () => pubsub.asyncIterator([TRANSACITON_ADDED])
     }
   },
-  Transaction: {
-    signatures: (_, args) => {
-      return _.signatures.map(signature => {
-        return {
-          address: signature
-        };
-      });
+  Msg: {
+    value: (_) => {
+      return {
+        __typename: _.type.replace('cosmos-sdk/', ''),
+        ..._.value
+      }
     }
+  },
+  Transaction: {
+    msgs: (_) => _.msgs.map(msg => msg._doc)
   },
   Query: {
     allTransactions: async (_, args) => {
@@ -39,10 +44,18 @@ export default {
         limit: args.pagination.limit,
         sort: {
           [args.sort.field]: args.sort.direction
-        }
+        },
+        populate: [{
+            path: "msgs",
+            select: "-_id -tx_hash"
+          },
+          {
+            path: "signatures"
+          }
+        ]
       });
 
-      //console.log(results.docs);
+      debugger;
 
       return {
         docs: results.docs,
