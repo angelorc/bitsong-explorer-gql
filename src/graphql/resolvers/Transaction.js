@@ -1,15 +1,20 @@
 import Transaction from "../../models/TransactionModel";
 import Message from "../../models/MessageModel";
-import {
-  PubSub
-} from "graphql-subscriptions";
+import Account from "../../models/AccountModel";
+
+import { PubSub } from "graphql-subscriptions";
 
 const pubsub = new PubSub();
 const TRANSACITON_ADDED = "TRANSACITON_ADDED";
 
 const listenToNewTransactions = callback => {
-  return Transaction.watch().on("change", data => {
-    callback(data.fullDocument);
+  return Transaction.watch().on("change", async data => {
+    const tx = await Transaction.findOne({ hash: data.fullDocument.hash })
+      .populate("signatures")
+      .populate("msgs")
+      .exec();
+
+    callback(tx);
   });
 };
 
@@ -26,15 +31,15 @@ export default {
     }
   },
   Msg: {
-    value: (_) => {
+    value: _ => {
       return {
-        __typename: _.type.replace('cosmos-sdk/', ''),
+        __typename: _.type.replace("cosmos-sdk/", ""),
         ..._.value
-      }
+      };
     }
   },
   Transaction: {
-    msgs: (_) => _.msgs.map(msg => msg._doc)
+    msgs: _ => _.msgs.map(msg => msg._doc)
   },
   Query: {
     allTransactions: async (_, args) => {
@@ -45,7 +50,8 @@ export default {
         sort: {
           [args.sort.field]: args.sort.direction
         },
-        populate: [{
+        populate: [
+          {
             path: "msgs",
             select: "-_id -tx_hash"
           },
