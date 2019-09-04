@@ -21,7 +21,7 @@ export default `
       sort: String
       sortDirection: String
     ): [Account]
-    account(address: String!): Account!
+    account(address: String! valoper: String): Account!
     validator(operatorAddress: String!): Validator!
   }
 `;

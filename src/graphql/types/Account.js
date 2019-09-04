@@ -4,6 +4,7 @@ export default `
     bonded: String
     unbonding: String
     rewards: String
+    commissions: String
   }
   type UnbondingDelegationEntry {
     creation_height: String
