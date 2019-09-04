@@ -19,6 +19,7 @@ export default `
     gas_wanted: Int
     gas_used: Int
     time: Date
+    memo: String
     signatures: [Signature]
     msgs: [Msg]
   }
@@ -30,5 +31,11 @@ export default `
 
   enum TransactionSortField {
     height
+  }
+
+  input TransactionFiltersInput {
+    hash: String
+    height: Int
+    address: String
   }
 `;

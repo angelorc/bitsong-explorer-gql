@@ -1,15 +1,20 @@
 import Transaction from "../../models/TransactionModel";
+import mongoose from "mongoose";
 import Message from "../../models/MessageModel";
 import Account from "../../models/AccountModel";
 
-import { PubSub } from "graphql-subscriptions";
+import {
+  PubSub
+} from "graphql-subscriptions";
 
 const pubsub = new PubSub();
 const TRANSACITON_ADDED = "TRANSACITON_ADDED";
 
 const listenToNewTransactions = callback => {
   return Transaction.watch().on("change", async data => {
-    const tx = await Transaction.findOne({ hash: data.fullDocument.hash })
+    const tx = await Transaction.findOne({
+        hash: data.fullDocument.hash
+      })
       .populate("signatures")
       .populate("msgs")
       .exec();
@@ -43,15 +48,36 @@ export default {
   },
   Query: {
     allTransactions: async (_, args) => {
-      const query = {};
+      let query = {};
+
+      if (args.filters) {
+        query = args.filters
+
+        if (args.filters.address) {
+          const account = await Account.findOne({
+            address: args.filters.address
+          }).exec();
+
+          delete args.filters.address
+
+          if (account) {
+            query = {
+              ...query,
+              signatures: {
+                $in: mongoose.Types.ObjectId(account._id)
+              }
+            }
+          }
+        }
+      }
+
       const results = await Transaction.paginate(query, {
         page: args.pagination.page,
         limit: args.pagination.limit,
         sort: {
           [args.sort.field]: args.sort.direction
         },
-        populate: [
-          {
+        populate: [{
             path: "msgs",
             select: "-_id -tx_hash"
           },

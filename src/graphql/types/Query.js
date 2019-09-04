@@ -2,7 +2,7 @@
 export default `
   type Query {
     allBlocks(pagination: PaginationInput = {}, sort: BlockSortInput = {}): BlockConnection!
-    allTransactions(pagination: PaginationInput = {}, sort: TransactionSortInput = {}): TransactionConnection!
+    allTransactions(filters: TransactionFiltersInput = {}, pagination: PaginationInput = {}, sort: TransactionSortInput = {}): TransactionConnection!
     blocks(
       page: Int
       limit: Int

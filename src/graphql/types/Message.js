@@ -38,7 +38,7 @@ export default `
   union MsgValue = MsgSend | MsgMultiSend | MsgVerifyInvariant | MsgWithdrawDelegationReward | MsgModifyWithdrawAddress | MsgWithdrawValidatorCommission | MsgDelegate | MsgUnjail | MsgEditValidator  | MsgCreateValidator | MsgUndelegate | MsgBeginRedelegate
 
   type MsgSend {
-    amount: [Amount]
+    amount: [Coin]
     from_address: String
     to_address: String
   }
@@ -50,7 +50,7 @@ export default `
 
   type MsgMultiSendData {
     address: String
-    coins: [Amount]
+    coins: [Coin]
   }
 
   type MsgVerifyInvariant {
@@ -76,7 +76,7 @@ export default `
   type MsgDelegate {
     delegator_address: String
     validator_address: String
-    amount: Amount
+    amount: Coin
   }
 
   type MsgUnjail {
@@ -110,19 +110,19 @@ export default `
     delegator_address: String
     validator_address: String
     pubkey: String
-    value: Amount
+    value: Coin
   }
 
   type MsgUndelegate {
     delegator_address: String
     validator_address: String
-    amount: Amount
+    amount: Coin
   }
 
   type MsgBeginRedelegate {
     delegator_address: String
     validator_src_address: String
     validator_dst_address: String
-    amount: Amount
+    amount: Coin
   }
 `;

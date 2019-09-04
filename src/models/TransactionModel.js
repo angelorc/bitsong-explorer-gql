@@ -30,6 +30,9 @@ const transactionSchema = new Schema({
     type: Boolean,
     required: true
   },
+  memo: {
+    type: String
+  },
   gas_wanted: {
     type: Number,
     required: true

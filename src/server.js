@@ -32,6 +32,8 @@ import {
 import {
   makeExecutableSchema
 } from "graphql-tools";
+import Bluebird from "bluebird";
+(mongoose).Promise = Bluebird;
 
 // CONFIG
 require("dotenv").config();
@@ -47,14 +49,45 @@ const resolvers = mergeResolvers(
 );
 
 // DATABASE CONNECTION
-mongoose.Promise = global.Promise;
+const mongooseOptions = {
+  autoIndex: true,
+  poolSize: 500,
+  // sets how many times to try reconnecting
+  reconnectTries: Number.MAX_VALUE,
+  // sets the delay between every retry (milliseconds)
+  reconnectInterval: 1000
+};
+
 mongoose
-  .connect(`mongodb://localhost:27017/bitsong?replicaSet=replica01`)
+  .connect(`mongodb://localhost:27017/bitsong?replicaSet=replica01`, mongooseOptions)
   .then(() => {
     console.log(`Connection to database successful!`);
     console.log("----------------------------------");
+
+    // SIGUSR2 signal for nodemon shutdown
+    process.once("SIGUSR2", () => {
+      mongoose.connection.close(() => {
+        console.log("Mongoose disconnected through nodemon restart");
+        process.kill(process.pid, "SIGUSR2");
+      });
+    });
+
+    process.on("SIGINT", () => {
+      mongoose.connection.close(() => {
+        console.log("Mongoose disconnected through app termination");
+        process.exit(0);
+      });
+    });
+
+    process.on("SIGTERM", () => {
+      mongoose.connection.close(() => {
+        console.log("Mongoose disconnected through app termination");
+        process.exit(0);
+      });
+    });
   })
   .catch(err => console.log(`Error connecting to database: ${err}`));
+
 
 // LOGGER
 app.use(morgan("dev"));

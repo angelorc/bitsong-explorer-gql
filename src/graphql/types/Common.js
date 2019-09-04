@@ -1,5 +1,5 @@
 export default `
-  type Amount {
+  type Coin {
     denom: String
     amount: String
   }
