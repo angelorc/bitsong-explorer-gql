@@ -112,6 +112,14 @@ export default {
             return 0;
           }
 
+          if (response.result.rewards.length === 0) {
+            return 0;
+          }
+
+          if (response.result.rewards[0].reward === null) {
+            return 0;
+          }
+
           if (response.result.rewards[0].reward.length === 0) {
             return 0;
           }
@@ -125,7 +133,10 @@ export default {
       return fetch(
           `${config.stargate}/distribution/validators/${account.valoper}/outstanding_rewards`
         )
-        .then(res => res.json())
+        .then(res => {
+
+          return res.json()
+        })
         .then(response => {
           if (response.error) {
             throw response.error;
