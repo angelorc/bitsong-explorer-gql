@@ -101,7 +101,6 @@ export default {
     self_shares: async (validator) => {
       const delegator_address = operatorAddrToAccoutAddr(validator.operator_address, config.prefix.bech32PrefixAccAddr)
       const delegations = await getDelegations(validator.operator_address)
-      console.log(delegations)
 
       return delegations.find(v => v.delegator_address === delegator_address).shares
     }
