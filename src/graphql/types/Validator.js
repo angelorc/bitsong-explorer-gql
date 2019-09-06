@@ -48,7 +48,7 @@ export default `
     unbonding_height: Int
     unbonding_time: String
     commission: ValidatorCommission
-    min_self_delegation: Int
+    min_self_delegation: String
   }
   type Validator {
     address: String
