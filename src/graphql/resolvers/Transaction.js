@@ -3,7 +3,9 @@ import mongoose from "mongoose";
 import Message from "../../models/MessageModel";
 import Account from "../../models/AccountModel";
 
-import { PubSub } from "graphql-subscriptions";
+import {
+  PubSub
+} from "graphql-subscriptions";
 
 const pubsub = new PubSub();
 const TRANSACITON_ADDED = "TRANSACITON_ADDED";
@@ -11,8 +13,8 @@ const TRANSACITON_ADDED = "TRANSACITON_ADDED";
 const listenToNewTransactions = callback => {
   return Transaction.watch().on("change", async data => {
     const tx = await Transaction.findOne({
-      hash: data.fullDocument.hash
-    })
+        hash: data.fullDocument.hash
+      })
       .populate("signatures")
       .populate("msgs")
       .exec();
@@ -50,7 +52,7 @@ export default {
         "cosmos-sdk/MsgBeginRedelegate"
       ];
 
-      if (!authorizedMessages.includes(_.type)) return;
+      if (!authorizedMessages.includes(_.type)) return null;
 
       return {
         __typename: _.type.replace("cosmos-sdk/", ""),
@@ -94,8 +96,7 @@ export default {
         sort: {
           [args.sort.field]: args.sort.direction
         },
-        populate: [
-          {
+        populate: [{
             path: "msgs",
             select: "-_id -tx_hash"
           },
