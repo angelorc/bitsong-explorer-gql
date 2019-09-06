@@ -34,6 +34,7 @@ import {
 } from "graphql-tools";
 import Bluebird from "bluebird";
 (mongoose).Promise = Bluebird;
+import config from "./config";
 
 // CONFIG
 require("dotenv").config();
@@ -59,7 +60,7 @@ const mongooseOptions = {
 };
 
 mongoose
-  .connect(`mongodb://localhost:27017/bitsong?replicaSet=replica01`, mongooseOptions)
+  .connect(config.dbUri, mongooseOptions)
   .then(() => {
     console.log(`Connection to database successful!`);
     console.log("----------------------------------");
@@ -106,16 +107,19 @@ const schema = makeExecutableSchema({
   resolvers
 });
 
-app.use("/graphql", express.json(), graphqlExpress({
+app.use("/gql/graphql", express.json(), graphqlExpress({
   schema
 }));
-app.use(
-  "/graphiql",
-  graphiqlExpress({
-    endpointURL: "/graphql",
-    subscriptionsEndpoint: `ws://localhost:8081/subscriptions`
-  })
-);
+
+if (config.enableGraphiQl) {
+  app.use(
+    "/gql/graphiql",
+    graphiqlExpress({
+      endpointURL: "/gql/graphql",
+      subscriptionsEndpoint: `ws://localhost:${PORT}/gql/subscriptions`
+    })
+  );
+}
 
 /* UNCOMMENT FOR HTTPS2
 const options = {
@@ -143,6 +147,6 @@ ws.listen(PORT, () => {
     schema
   }, {
     server: ws,
-    path: "/subscriptions"
+    path: "/gql/subscriptions"
   });
 });
