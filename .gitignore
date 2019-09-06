@@ -87,3 +87,6 @@ sw.*
 .firebase
 .firebaserc
 firebase.json
+
+# Ignore config
+src/config.js
