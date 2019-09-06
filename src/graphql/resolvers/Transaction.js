@@ -3,9 +3,7 @@ import mongoose from "mongoose";
 import Message from "../../models/MessageModel";
 import Account from "../../models/AccountModel";
 
-import {
-  PubSub
-} from "graphql-subscriptions";
+import { PubSub } from "graphql-subscriptions";
 
 const pubsub = new PubSub();
 const TRANSACITON_ADDED = "TRANSACITON_ADDED";
@@ -13,8 +11,8 @@ const TRANSACITON_ADDED = "TRANSACITON_ADDED";
 const listenToNewTransactions = callback => {
   return Transaction.watch().on("change", async data => {
     const tx = await Transaction.findOne({
-        hash: data.fullDocument.hash
-      })
+      hash: data.fullDocument.hash
+    })
       .populate("signatures")
       .populate("msgs")
       .exec();
@@ -37,6 +35,23 @@ export default {
   },
   Msg: {
     value: _ => {
+      const authorizedMessages = [
+        "cosmos-sdk/MsgSend",
+        "cosmos-sdk/MsgMultiSend",
+        "cosmos-sdk/MsgVerifyInvariant",
+        "cosmos-sdk/MsgWithdrawDelegationReward",
+        "cosmos-sdk/MsgModifyWithdrawAddress",
+        "cosmos-sdk/MsgWithdrawValidatorCommission",
+        "cosmos-sdk/MsgDelegate",
+        "cosmos-sdk/MsgUnjail",
+        "cosmos-sdk/MsgEditValidator",
+        "cosmos-sdk/MsgCreateValidator",
+        "cosmos-sdk/MsgUndelegate",
+        "cosmos-sdk/MsgBeginRedelegate"
+      ];
+
+      if (!authorizedMessages.includes(_.type)) return;
+
       return {
         __typename: _.type.replace("cosmos-sdk/", ""),
         ..._.value
@@ -44,21 +59,23 @@ export default {
     }
   },
   Transaction: {
-    msgs: _ => _.msgs.map(msg => msg._doc)
+    msgs: _ => {
+      return _.msgs.map(msg => msg._doc);
+    }
   },
   Query: {
     allTransactions: async (_, args) => {
       let query = {};
 
       if (args.filters) {
-        query = args.filters
+        query = args.filters;
 
         if (args.filters.address) {
           const account = await Account.findOne({
             address: args.filters.address
           }).exec();
 
-          delete args.filters.address
+          delete args.filters.address;
 
           if (account) {
             query = {
@@ -66,7 +83,7 @@ export default {
               signatures: {
                 $in: mongoose.Types.ObjectId(account._id)
               }
-            }
+            };
           }
         }
       }
@@ -77,7 +94,8 @@ export default {
         sort: {
           [args.sort.field]: args.sort.direction
         },
-        populate: [{
+        populate: [
+          {
             path: "msgs",
             select: "-_id -tx_hash"
           },
