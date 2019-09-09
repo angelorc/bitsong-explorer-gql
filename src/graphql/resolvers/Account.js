@@ -4,37 +4,37 @@ import Account from "../../models/AccountModel";
 
 const getDelegations = delegatorAddr =>
   fetch(`${config.stargate}/staking/delegators/${delegatorAddr}/delegations`)
-  .then(res => res.json())
-  .then(res => {
-    if (res.error) throw res.error;
+    .then(res => res.json())
+    .then(res => {
+      if (res.error) throw res.error;
 
-    return res.result;
-  });
+      return res.result;
+    });
 
 const getUnbondingDelegations = delegatorAddr =>
   fetch(
     `${config.stargate}/staking/delegators/${delegatorAddr}/unbonding_delegations`
   )
-  .then(res => res.json())
-  .then(res => {
-    if (res.error) throw res.error;
+    .then(res => res.json())
+    .then(res => {
+      if (res.error) throw res.error;
 
-    return res.result;
-  });
+      return res.result;
+    });
 
 const getRedelegations = delegatorAddr =>
   fetch(`${config.stargate}/staking/redelegations`)
-  .then(res => res.json())
-  .then(res => {
-    if (res.error) throw res.error;
+    .then(res => res.json())
+    .then(res => {
+      if (res.error) throw res.error;
 
-    return res.result;
-  });
+      return res.result;
+    });
 
 export default {
   Balances: {
     available: account => {
-      return fetch(`${config.stargate}/bank/balances/${account.address}`)
+      return fetch(`${config.stargate}/auth/accounts/${account.address}`)
         .then(res => res.json())
         .then(response => {
           if (response.error) {
@@ -45,13 +45,17 @@ export default {
             return 0;
           }
 
-          return response.result[0].amount;
+          if (response.result.value.coins.length === 0) {
+            return 0;
+          }
+
+          return response.result.value.coins[0].amount;
         });
     },
     bonded: account => {
       return fetch(
-          `${config.stargate}/staking/delegators/${account.address}/delegations`
-        )
+        `${config.stargate}/staking/delegators/${account.address}/delegations`
+      )
         .then(res => res.json())
         .then(response => {
           if (response.error) {
@@ -73,8 +77,8 @@ export default {
     },
     unbonding: account => {
       return fetch(
-          `${config.stargate}/staking/delegators/${account.address}/unbonding_delegations`
-        )
+        `${config.stargate}/staking/delegators/${account.address}/unbonding_delegations`
+      )
         .then(res => res.json())
         .then(response => {
           if (response.error) {
@@ -100,8 +104,8 @@ export default {
     },
     rewards: account => {
       return fetch(
-          `${config.stargate}/distribution/delegators/${account.address}/rewards`
-        )
+        `${config.stargate}/distribution/delegators/${account.address}/rewards`
+      )
         .then(res => res.json())
         .then(response => {
           if (response.error) {
@@ -131,11 +135,10 @@ export default {
       if (!account.valoper) return null;
 
       return fetch(
-          `${config.stargate}/distribution/validators/${account.valoper}/outstanding_rewards`
-        )
+        `${config.stargate}/distribution/validators/${account.valoper}/outstanding_rewards`
+      )
         .then(res => {
-
-          return res.json()
+          return res.json();
         })
         .then(response => {
           if (response.error) {
@@ -187,9 +190,9 @@ export default {
       const query = {};
 
       return Account.paginate(query, {
-          page: queryParams.page,
-          limit: queryParams.limit
-        })
+        page: queryParams.page,
+        limit: queryParams.limit
+      })
         .then(accounts => {
           return accounts.docs.map(account => {
             return account;
