@@ -1,6 +1,8 @@
 // ConnectionArgs: {after: String, first: Int, before: String, last: Int}
 export default `
   type Query {
+    allCustodians: [Custodian]
+    custodian (address: String!) : Custodian
     allBlocks(pagination: PaginationInput = {}, sort: BlockSortInput = {}): BlockConnection!
     allTransactions(filters: TransactionFiltersInput = {}, pagination: PaginationInput = {}, sort: TransactionSortInput = {}): TransactionConnection!
     blocks(
