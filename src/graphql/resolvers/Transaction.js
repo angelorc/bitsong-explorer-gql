@@ -3,9 +3,7 @@ import mongoose from "mongoose";
 import Message from "../../models/MessageModel";
 import Account from "../../models/AccountModel";
 
-import {
-  PubSub
-} from "graphql-subscriptions";
+import { PubSub } from "graphql-subscriptions";
 
 const pubsub = new PubSub();
 const TRANSACITON_ADDED = "TRANSACITON_ADDED";
@@ -13,8 +11,8 @@ const TRANSACITON_ADDED = "TRANSACITON_ADDED";
 const listenToNewTransactions = callback => {
   return Transaction.watch().on("change", async data => {
     const tx = await Transaction.findOne({
-        hash: data.fullDocument.hash
-      })
+      hash: data.fullDocument.hash
+    })
       .populate("signatures")
       .populate("msgs")
       .exec();
@@ -49,13 +47,20 @@ export default {
         "cosmos-sdk/MsgEditValidator",
         "cosmos-sdk/MsgCreateValidator",
         "cosmos-sdk/MsgUndelegate",
-        "cosmos-sdk/MsgBeginRedelegate"
+        "cosmos-sdk/MsgBeginRedelegate",
+        "go-tichex/MsgSend",
+        "go-tichex/MsgMint",
+        "go-tichex/MsgBurn",
+        "go-tichex/MsgIssue",
+        "go-tichex/MsgFreeze",
+        "go-tichex/MsgUnfreeze",
+        "go-tichex/MsgCreateIssuer"
       ];
 
       if (!authorizedMessages.includes(_.type)) return null;
 
       return {
-        __typename: _.type.replace("cosmos-sdk/", ""),
+        __typename: _.type.replace("cosmos-sdk/", "").replace("go-tichex/", ""),
         ..._.value
       };
     }
@@ -96,7 +101,8 @@ export default {
         sort: {
           [args.sort.field]: args.sort.direction
         },
-        populate: [{
+        populate: [
+          {
             path: "msgs",
             select: "-_id -tx_hash"
           },

@@ -35,7 +35,7 @@ export default `
     value: MsgValue
   }
 
-  union MsgValue = MsgSend | MsgMultiSend | MsgVerifyInvariant | MsgWithdrawDelegationReward | MsgModifyWithdrawAddress | MsgWithdrawValidatorCommission | MsgDelegate | MsgUnjail | MsgEditValidator  | MsgCreateValidator | MsgUndelegate | MsgBeginRedelegate
+  union MsgValue = MsgCreateIssuer | MsgUnfreeze | MsgFreeze | MsgIssue | MsgBurn | MsgMint | MsgSend | MsgMultiSend | MsgVerifyInvariant | MsgWithdrawDelegationReward | MsgModifyWithdrawAddress | MsgWithdrawValidatorCommission | MsgDelegate | MsgUnjail | MsgEditValidator  | MsgCreateValidator | MsgUndelegate | MsgBeginRedelegate
 
   type MsgSend {
     amount: [Coin]
