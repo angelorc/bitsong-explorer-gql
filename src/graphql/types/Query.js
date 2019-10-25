@@ -3,17 +3,19 @@ export default `
   type Query {
     allBlocks(pagination: PaginationInput = {}, sort: BlockSortInput = {}): BlockConnection!
     allTransactions(filters: TransactionFiltersInput = {}, pagination: PaginationInput = {}, sort: TransactionSortInput = {}): TransactionConnection!
+    allMissedBlocks(filters: MissedBlockFiltersInput = {}, pagination: PaginationInput = {}, sort: MissedBlockSortInput = {}): MissedBlockConnection!
+    allValidators(filters: ValidatorFiltersInput = {}, pagination: PaginationInput = {}, sort: ValidatorSortInput = {}): ValidatorConnection!
+
+    allProposals: [Proposal]
+    proposal(proposal: Int!): Proposal
+
+    chartValidators(limit: Int = 12): [ChartValidators]
+
     blocks(
       page: Int
       limit: Int
     ): [Block]
     block(height: Int): Block
-    validators(
-      page: Int
-      limit: Int
-      sort: String
-      sortDirection: String
-    ): [Validator]
     delegations(operatorAddress: String!): Delegations
     accounts(
       page: Int

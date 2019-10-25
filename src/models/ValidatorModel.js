@@ -1,5 +1,5 @@
-import mongoose from "mongoose";
-import mongoosePaginate from "mongoose-paginate";
+const mongoose = require("mongoose");
+const mongoosePaginate = require("mongoose-paginate");
 const Schema = mongoose.Schema;
 
 /**
@@ -11,82 +11,80 @@ const validatorSchema = new Schema(
   {
     address: {
       type: String,
+      index: true
+    },
+    operator_address: {
+      type: String,
       required: true,
       index: true
     },
-    voting_power: {
-      type: Number,
+    delegator_address: {
+      type: String,
+      index: true
+    },
+    consensus_pubkey: {
+      type: String,
+      required: true,
+      index: true
+    },
+    jailed: {
+      type: Boolean,
+      default: false,
       required: true
     },
-    proposer_priority: {
+    status: {
       type: Number,
+      default: 2,
       required: true
     },
-    uptime: {
-      type: Schema.Types.ObjectId,
-      ref: "Uptime"
+    tokens: {
+      type: String
     },
-    details: {
-      operatorAddress: {
+    delegator_shares: {
+      type: String
+    },
+    description: {
+      moniker: {
         type: String,
-        required: true
+        index: true
       },
-      delegatorAddress: {
-        type: String,
-        required: true
-      },
-      consensusPubkey: {
-        type: String,
-        required: true
-      },
-      jailed: {
-        type: Boolean,
-        required: true,
-        default: false
-      },
-      status: {
-        type: String,
-        required: true
-      },
-      tokens: {
-        type: String,
-        required: true
-      },
-      delegatorShares: {
+      identity: {
         type: String
       },
-      description: {
-        moniker: {
-          type: String,
-          required: true
-        },
-        identity: {
-          type: String
-        },
-        website: {
-          type: String
-        },
-        profile_url: {
-          type: String
-        },
-        details: {
-          type: String
-        }
+      website: {
+        type: String
       },
-      commission: {
+      security_contact: {
+        type: String
+      },
+      details: {
+        type: String
+      }
+    },
+    unbonding_height: {
+      type: String
+    },
+    unbonding_time: {
+      type: String
+    },
+    commission: {
+      commission_rates: {
         rate: {
           type: String
         },
-        maxRate: {
+        max_rate: {
           type: String
         },
-        maxChangeRate: {
-          type: String
-        },
-        updateTime: {
+        max_change_rate: {
           type: String
         }
+      },
+      update_time: {
+        type: String
       }
+    },
+    min_self_delegation: {
+      type: String
     }
   },
   {
@@ -100,5 +98,4 @@ validatorSchema.index({ address: 1 }, { name: "validatorAddressIndex" });
 validatorSchema.plugin(mongoosePaginate);
 
 const Validator = mongoose.model("Validator", validatorSchema);
-
 export default Validator;

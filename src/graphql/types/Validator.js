@@ -1,4 +1,47 @@
 export default `
+  type ValidatorConnection {
+    docs: [Validator]!
+    pageInfo: PageInfo!
+  }
+  input ValidatorSortInput {
+    field: ValidatorSortField! = voting_power
+    direction: Int! = -1
+  }
+  enum ValidatorSortField {
+    voting_power
+    moniker
+    commission
+  }
+  input ValidatorFiltersInput {
+    status: Int
+    jailed: Boolean
+  }
+
+  type Validator {
+    consensus_pubkey: String
+    commission: ValidatorCommission
+    delegator_address: String
+    description: ValidatorDescription
+    jailed: Boolean
+    operator_address: String
+    status: Int
+    delegator_shares: Float
+    min_self_delegation: String
+    tokens: String
+    unbonding_height: Int
+    unbonding_time: String
+
+    address: String
+    pub_key: ValidatorPubKey
+    voting_power: Int
+    proposer_priority: String
+
+    self_shares: Float
+    delegations: [Delegation]
+    unbonding_delegations: [UnbondingDelegation]
+    missed_blocks: [MissedBlock]
+  }
+
   type UnbondingDelegationEntry {
     creation_height: String
     completion_time: String
@@ -25,6 +68,7 @@ export default `
     website: String
     details: String
     avatar: String
+    security_contact: String
   }
   type ValidatorCommissionRate {
     rate: Float
@@ -34,29 +78,5 @@ export default `
   type ValidatorCommission {
     commission_rates: ValidatorCommissionRate
     update_time: String
-  }
-  type ValidatorDetails {
-    operator_address: String
-    consensus_pubkey: String
-    delegator_address: String
-    jailed: Boolean
-    status: Int
-    tokens: String
-    delegator_shares: Float
-    self_shares: Float
-    description: ValidatorDescription
-    unbonding_height: Int
-    unbonding_time: String
-    commission: ValidatorCommission
-    min_self_delegation: String
-  }
-  type Validator {
-    address: String
-    pub_key: ValidatorPubKey
-    voting_power: Int
-    proposer_priority: String
-    details: ValidatorDetails
-    delegations: [Delegation]
-    unbonding_delegations: [UnbondingDelegation]
   }
 `;
