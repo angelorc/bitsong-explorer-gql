@@ -23,8 +23,7 @@ const transactionSchema = new Schema({
     ref: "Message"
   }],
   signatures: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Account"
+    type: String
   }],
   status: {
     type: Boolean,

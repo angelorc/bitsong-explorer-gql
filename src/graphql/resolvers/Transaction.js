@@ -105,9 +105,6 @@ export default {
           {
             path: "msgs",
             select: "-_id -tx_hash"
-          },
-          {
-            path: "signatures"
           }
         ]
       });
