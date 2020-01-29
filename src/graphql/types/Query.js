@@ -2,20 +2,25 @@
 export default `
   type Query {
     allBlocks(pagination: PaginationInput = {}, sort: BlockSortInput = {}): BlockConnection!
+    block(height: Int): Block
     allTransactions(filters: TransactionFiltersInput = {}, pagination: PaginationInput = {}, sort: TransactionSortInput = {}): TransactionConnection!
+    account(address: String! valoper: String): Account!
+
+
+
+
+
+
+
     allMissedBlocks(filters: MissedBlockFiltersInput = {}, pagination: PaginationInput = {}, sort: MissedBlockSortInput = {}): MissedBlockConnection!
     allValidators(filters: ValidatorFiltersInput = {}, pagination: PaginationInput = {}, sort: ValidatorSortInput = {}): ValidatorConnection!
-
     allProposals: [Proposal]
     proposal(proposal: Int!): Proposal
-
     chartValidators(limit: Int = 12): [ChartValidators]
-
     blocks(
       page: Int
       limit: Int
     ): [Block]
-    block(height: Int): Block
     delegations(operatorAddress: String!): Delegations
     accounts(
       page: Int
@@ -23,7 +28,6 @@ export default `
       sort: String
       sortDirection: String
     ): [Account]
-    account(address: String! valoper: String): Account!
     validator(operatorAddress: String!): Validator!
   }
 `;

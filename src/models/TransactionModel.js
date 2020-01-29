@@ -8,40 +8,41 @@ const Schema = mongoose.Schema;
  * @type {"mongoose".Schema}
  */
 const transactionSchema = new Schema({
-  hash: {
-    type: String,
-    required: true,
-    index: true
-  },
   height: {
     type: Number,
     required: true,
     index: true
   },
-  msgs: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Message"
-  }],
-  signatures: [{
-    type: String
-  }],
-  status: {
-    type: Boolean,
-    required: true
+  tx_hash: {
+    type: String,
+    required: true,
+    index: true
   },
+  events: [{
+    type: Object
+  }],
+  fee: {
+    type: Object
+  },
+  gas_used: {
+    type: Number
+  },
+  gas_wanted: {
+    type: Number
+  },
+  logs: [{
+    type: Object
+  }],
   memo: {
     type: String
   },
-  gas_wanted: {
-    type: Number,
-    required: true
-  },
-  gas_used: {
-    type: Number,
-    required: true
-  },
-  fee_amount: [],
-  time: {
+  messages: [{
+    type: Object
+  }],
+  signatures: [{
+    type: Object
+  }],
+  timestamp: {
     type: Date,
     required: true
   }

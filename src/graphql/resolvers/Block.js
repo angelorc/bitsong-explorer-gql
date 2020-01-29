@@ -59,12 +59,12 @@ export default {
       const query = {};
 
       return Block.paginate(query, {
-          page: queryParams.page,
-          limit: queryParams.limit,
-          sort: {
-            height: -1
-          }
-        })
+        page: queryParams.page,
+        limit: queryParams.limit,
+        sort: {
+          height: -1
+        }
+      })
         .then(blocks => {
           return blocks.docs.map(block => {
             return block;

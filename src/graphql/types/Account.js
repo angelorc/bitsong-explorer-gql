@@ -1,11 +1,12 @@
 export default `
   type Balances {
-    available: String
+    available: [Coin]
     bonded: String
     unbonding: String
-    rewards: String
-    commissions: String
+    rewards: [JSONObject]
+    commissions: [JSONObject]
   }
+
   type UnbondingDelegationEntry {
     creation_height: String
     completion_time: String
@@ -35,6 +36,7 @@ export default `
     validator_dst_address: String
     entries: [RedelegationEntry]
   }
+
   type Account {
     address: String
     balances: Balances

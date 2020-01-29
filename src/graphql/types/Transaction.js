@@ -13,15 +13,17 @@ export default `
   }
 
   type Transaction {
-    hash: String
     height: Int
-    status: Boolean
-    gas_wanted: Int
+    tx_hash: String
+    events: [JSONObject]
+    fee: JSONObject
     gas_used: Int
-    time: Date
+    gas_wanted: Int
+    logs: [JSONObject]
     memo: String
-    signatures: [Signature]
-    msgs: [Msg]
+    messages: [JSONObject]
+    signatures: [JSONObject]
+    timestamp: Date
   }
 
   input TransactionSortInput {

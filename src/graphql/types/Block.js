@@ -13,9 +13,12 @@ export default `
   type Block {
     height: Int
     hash: String
-    time: Date
     num_txs: Int
-    proposer: String
+    precommits: Int
+    proposer_address: String
+    total_gas: Int
+    missed_validators: [String]
+    timestamp: Date
   }
 
   input BlockSortInput {

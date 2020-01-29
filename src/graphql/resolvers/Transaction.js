@@ -33,43 +33,6 @@ export default {
       subscribe: () => pubsub.asyncIterator([TRANSACITON_ADDED])
     }
   },
-  Msg: {
-    value: _ => {
-      const authorizedMessages = [
-        "cosmos-sdk/MsgSend",
-        "cosmos-sdk/MsgMultiSend",
-        "cosmos-sdk/MsgVerifyInvariant",
-        "cosmos-sdk/MsgWithdrawDelegationReward",
-        "cosmos-sdk/MsgModifyWithdrawAddress",
-        "cosmos-sdk/MsgWithdrawValidatorCommission",
-        "cosmos-sdk/MsgDelegate",
-        "cosmos-sdk/MsgUnjail",
-        "cosmos-sdk/MsgEditValidator",
-        "cosmos-sdk/MsgCreateValidator",
-        "cosmos-sdk/MsgUndelegate",
-        "cosmos-sdk/MsgBeginRedelegate",
-        "go-tichex/MsgSend",
-        "go-tichex/MsgMint",
-        "go-tichex/MsgBurn",
-        "go-tichex/MsgIssue",
-        "go-tichex/MsgFreeze",
-        "go-tichex/MsgUnfreeze",
-        "go-tichex/MsgCreateIssuer"
-      ];
-
-      if (!authorizedMessages.includes(_.type)) return null;
-
-      return {
-        __typename: _.type.replace("cosmos-sdk/", "").replace("go-tichex/", ""),
-        ..._.value
-      };
-    }
-  },
-  Transaction: {
-    msgs: _ => {
-      return _.msgs.map(msg => msg._doc);
-    }
-  },
   Query: {
     allTransactions: async (_, args) => {
       let query = {};
