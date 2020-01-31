@@ -1,6 +1,7 @@
 import config from "../../config";
 import fetch from "node-fetch";
 import Account from "../../models/AccountModel";
+import Validator from "../../models/ValidatorModel"
 
 const getDelegations = delegatorAddr =>
   fetch(`${config.stargate}/staking/delegators/${delegatorAddr}/delegations`)
@@ -108,23 +109,11 @@ export default {
             throw response.error;
           }
 
-          if (response.result.rewards === null) {
+          if (!response.result.total) {
             return 0;
           }
 
-          if (response.result.rewards.length === 0) {
-            return 0;
-          }
-
-          if (response.result.rewards[0].reward === null) {
-            return 0;
-          }
-
-          if (response.result.rewards[0].reward.length === 0) {
-            return 0;
-          }
-
-          return response.result.rewards;
+          return response.result.total
         });
     },
     commissions: account => {
@@ -170,7 +159,7 @@ export default {
   Query: {
     account: async (root, args) => {
       const address = args.address;
-      const valoper = args.valoper ? args.valoper : null;
+      const validator = await Validator.findOne({ delegator_address: address })
 
       if (!address) {
         throw Error("Invalid address");
@@ -178,25 +167,8 @@ export default {
 
       return {
         address: address,
-        valoper: valoper
+        valoper: validator._doc.operator_address
       };
-    },
-    accounts: (root, args, context) => {
-      const queryParams = extractQueryParams(args);
-      const query = {};
-
-      return Account.paginate(query, {
-        page: queryParams.page,
-        limit: queryParams.limit
-      })
-        .then(accounts => {
-          return accounts.docs.map(account => {
-            return account;
-          });
-        })
-        .catch(err => {
-          throw err;
-        });
     }
   }
 };

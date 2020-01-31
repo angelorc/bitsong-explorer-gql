@@ -5,8 +5,7 @@ import {
   sha256
 } from "js-sha256";
 import Validator from "../../models/ValidatorModel";
-import MissedBlock from "../../models/MissedBlockModel";
-import mongoose from "mongoose";
+import Block from "../../models/BlockModel";
 
 const pubkeyToBech32 = (pubkey, prefix) => {
   // '1624DE6420' is ed25519 pubkey prefix
@@ -36,53 +35,53 @@ const operatorAddrToAccoutAddr = (operatorAddr, prefix) => {
 
 const getTendermintValidators = () =>
   fetch(`${config.rpc}/validators`)
-  .then(res => res.json())
-  .then(res => res.result.validators);
+    .then(res => res.json())
+    .then(res => res.result.validators);
 
 const getValidators = () =>
   fetch(`${config.stargate}/staking/validators`)
-  .then(res => res.json())
-  .then(res => {
-    if (res.result) return res.result;
-    return res;
-  });
+    .then(res => res.json())
+    .then(res => {
+      if (res.result) return res.result;
+      return res;
+    });
 
 const getValidatorsUnbonding = () =>
   fetch(`${config.stargate}/staking/validators?status=unbonding`)
-  .then(res => res.json())
-  .then(res => {
-    if (res.result) return res.result;
-    return res;
-  });
+    .then(res => res.json())
+    .then(res => {
+      if (res.result) return res.result;
+      return res;
+    });
 
 const getValidator = validatorAddr =>
   fetch(`${config.stargate}/staking/validators/${validatorAddr}`)
-  .then(res => res.json())
-  .then(res => {
-    if (res.result) return res.result;
+    .then(res => res.json())
+    .then(res => {
+      if (res.result) return res.result;
 
-    return res;
-  });
+      return res;
+    });
 
 const getDelegations = validatorAddr =>
   fetch(`${config.stargate}/staking/validators/${validatorAddr}/delegations`)
-  .then(res => res.json())
-  .then(res => {
-    if (res.result) return res.result;
+    .then(res => res.json())
+    .then(res => {
+      if (res.result) return res.result;
 
-    return res;
-  });
+      return res;
+    });
 
 const getUnbondingDelegations = validatorAddr =>
   fetch(
     `${config.stargate}/staking/validators/${validatorAddr}/unbonding_delegations`
   )
-  .then(res => res.json())
-  .then(res => {
-    if (res.error) throw res.error;
+    .then(res => res.json())
+    .then(res => {
+      if (res.error) throw res.error;
 
-    return res.result;
-  });
+      return res.result;
+    });
 
 export default {
   Validator: {
@@ -95,13 +94,15 @@ export default {
       return await getUnbondingDelegations(validator.operator_address);
     },
     missed_blocks: async validator => {
-      const rest = await MissedBlock.find({
-        validators: {
-          $in: validator._id
+      const rest = await Block.find({
+        missed_validators: {
+          $in: validator.consensus_address
         }
       }).sort({
         height: -1
       });
+
+      console.log(rest)
 
       return rest;
     }
@@ -128,15 +129,28 @@ export default {
             [args.sort.field]: args.sort.direction
           }
         });
+
         const tendermintValidators = await getTendermintValidators();
+        const btsgValidators = await getValidators()
+        const btsgValidatorsUnbonding = await getValidatorsUnbonding()
         let docs = results.docs.map(doc => {
           const tendermintData = tendermintValidators.find(
             v => v.address === bech32PubkeyToAddress(doc.consensus_pubkey)
           );
 
+          const btsgData = btsgValidators.find(
+            v => v.operator_address === doc.operator_address
+          );
+
+          const btsg2data = btsgValidatorsUnbonding.find(
+            v => v.operator_address === doc.operator_address
+          );
+
           return {
             ...doc._doc,
-            ...tendermintData
+            ...tendermintData,
+            ...btsgData,
+            ...btsg2data
           };
         });
 
@@ -153,14 +167,14 @@ export default {
         ) {
           docs = docs.sort(
             (a, b) =>
-            a.commission.commission_rates.rate -
-            b.commission.commission_rates.rate
+              a.commission.commission_rates.rate -
+              b.commission.commission_rates.rate
           );
         } else {
           docs = docs.sort(
             (a, b) =>
-            b.commission.commission_rates.rate -
-            a.commission.commission_rates.rate
+              b.commission.commission_rates.rate -
+              a.commission.commission_rates.rate
           );
         }
 
@@ -180,16 +194,27 @@ export default {
     validator: async (root, args, context) => {
       try {
         const tendermintValidators = await getTendermintValidators();
+        const btsgValidators = await getValidators()
+        const btsgValidatorsUnbonding = await getValidatorsUnbonding()
         const validator = await Validator.findOne({
           operator_address: args.operatorAddress
         });
         const tendermintData = tendermintValidators.find(
           v => v.address === bech32PubkeyToAddress(validator.consensus_pubkey)
         );
+        const btsgData = btsgValidators.find(
+          v => v.operator_address === validator.operator_address
+        );
+
+        const btsg2data = btsgValidatorsUnbonding.find(
+          v => v.operator_address === validator.operator_address
+        );
 
         return {
           ...tendermintData,
-          ...validator._doc
+          ...validator._doc,
+          ...btsgData,
+          ...btsg2data
         };
       } catch (err) {
         throw err;

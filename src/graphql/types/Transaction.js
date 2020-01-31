@@ -9,20 +9,42 @@ export default `
   }
 
   type Signature {
-    address: String
+    address: String!
+    pubkey: String!
+    signature: String!
+  }
+
+  type MsgTransaction {
+    type: String!
+    value: JSONObject!
+  }
+
+  type EventAttribute {
+    key: String!
+    value: String!
+  }
+
+  type Event {
+    type: String!
+    attributes: [EventAttribute!]!
+  }
+
+  type Fee {
+    amount: [Coin!]!
+    gas: String!
   }
 
   type Transaction {
     height: Int
     tx_hash: String
-    events: [JSONObject]
-    fee: JSONObject
+    events: [Event]
+    fee: Fee
     gas_used: Int
     gas_wanted: Int
     logs: [JSONObject]
     memo: String
-    messages: [JSONObject]
-    signatures: [JSONObject]
+    messages: [MsgTransaction]
+    signatures: [Signature]
     timestamp: Date
   }
 
@@ -36,7 +58,7 @@ export default `
   }
 
   input TransactionFiltersInput {
-    hash: String
+    tx_hash: String
     height: Int
     address: String
   }

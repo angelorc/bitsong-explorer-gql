@@ -6,14 +6,19 @@ export default `
     allTransactions(filters: TransactionFiltersInput = {}, pagination: PaginationInput = {}, sort: TransactionSortInput = {}): TransactionConnection!
     account(address: String! valoper: String): Account!
 
-
-
-
-
-
-
-    allMissedBlocks(filters: MissedBlockFiltersInput = {}, pagination: PaginationInput = {}, sort: MissedBlockSortInput = {}): MissedBlockConnection!
+    allMissedBlocks(filters: MissedBlockFiltersInput = {}): MissedBlock
     allValidators(filters: ValidatorFiltersInput = {}, pagination: PaginationInput = {}, sort: ValidatorSortInput = {}): ValidatorConnection!
+    validator(operatorAddress: String!): Validator!
+
+    accounts(
+      page: Int
+      limit: Int
+      sort: String
+      sortDirection: String
+    ): [Account]
+
+
+
     allProposals: [Proposal]
     proposal(proposal: Int!): Proposal
     chartValidators(limit: Int = 12): [ChartValidators]
@@ -22,12 +27,5 @@ export default `
       limit: Int
     ): [Block]
     delegations(operatorAddress: String!): Delegations
-    accounts(
-      page: Int
-      limit: Int
-      sort: String
-      sortDirection: String
-    ): [Account]
-    validator(operatorAddress: String!): Validator!
   }
 `;

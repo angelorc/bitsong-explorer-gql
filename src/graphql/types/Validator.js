@@ -18,6 +18,7 @@ export default `
   }
 
   type Validator {
+    consensus_address: String
     consensus_pubkey: String
     commission: ValidatorCommission
     delegator_address: String
@@ -39,7 +40,7 @@ export default `
     self_shares: Float
     delegations: [Delegation]
     unbonding_delegations: [UnbondingDelegation]
-    missed_blocks: [MissedBlock]
+    missed_blocks: [Block]
   }
 
   type UnbondingDelegationEntry {

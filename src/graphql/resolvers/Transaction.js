@@ -38,23 +38,15 @@ export default {
       let query = {};
 
       if (args.filters) {
-        query = args.filters;
-
+        // Query for account
         if (args.filters.address) {
-          const account = await Account.findOne({
-            address: args.filters.address
-          }).exec();
+          query = {
+            ...query,
+            "signatures.address": args.filters.address,
+            $or: [{ "signatures.address": args.filters.address }, { "messages.value.recipient": args.filters.address }, { "messages.value.sender": args.filters.address }]
+          };
 
-          delete args.filters.address;
 
-          if (account) {
-            query = {
-              ...query,
-              signatures: {
-                $in: mongoose.Types.ObjectId(account._id)
-              }
-            };
-          }
         }
       }
 
@@ -63,13 +55,7 @@ export default {
         limit: args.pagination.limit,
         sort: {
           [args.sort.field]: args.sort.direction
-        },
-        populate: [
-          {
-            path: "msgs",
-            select: "-_id -tx_hash"
-          }
-        ]
+        }
       });
 
       debugger;
