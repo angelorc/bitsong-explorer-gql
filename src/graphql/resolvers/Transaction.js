@@ -3,7 +3,9 @@ import mongoose from "mongoose";
 import Message from "../../models/MessageModel";
 import Account from "../../models/AccountModel";
 
-import { PubSub } from "graphql-subscriptions";
+import {
+  PubSub
+} from "graphql-subscriptions";
 
 const pubsub = new PubSub();
 const TRANSACITON_ADDED = "TRANSACITON_ADDED";
@@ -11,8 +13,8 @@ const TRANSACITON_ADDED = "TRANSACITON_ADDED";
 const listenToNewTransactions = callback => {
   return Transaction.watch().on("change", async data => {
     const tx = await Transaction.findOne({
-      hash: data.fullDocument.hash
-    })
+        hash: data.fullDocument.hash
+      })
       .populate("signatures")
       .populate("msgs")
       .exec();
@@ -38,15 +40,39 @@ export default {
       let query = {};
 
       if (args.filters) {
+        // Query tx_hash
+        if (args.filters.tx_hash) {
+          query = {
+            ...query,
+            "tx_hash": args.filters.tx_hash
+          }
+        }
+
+        // Query block height
+        if (args.filters.height) {
+          query = {
+            ...query,
+            "height": args.filters.height
+          }
+        }
+
         // Query for account
         if (args.filters.address) {
           query = {
             ...query,
             "signatures.address": args.filters.address,
-            $or: [{ "signatures.address": args.filters.address }, { "messages.value.recipient": args.filters.address }, { "messages.value.sender": args.filters.address }]
+            $or: [{
+              "signatures.address": args.filters.address
+            }, {
+              "messages.value.recipient": args.filters.address
+            }, {
+              "messages.value.sender": args.filters.address
+            }]
           };
-
-
+          /*query = {
+            ...query,
+            "signatures.address": args.filters.addresss
+          };*/
         }
       }
 

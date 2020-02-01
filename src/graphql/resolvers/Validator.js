@@ -35,53 +35,53 @@ const operatorAddrToAccoutAddr = (operatorAddr, prefix) => {
 
 const getTendermintValidators = () =>
   fetch(`${config.rpc}/validators`)
-    .then(res => res.json())
-    .then(res => res.result.validators);
+  .then(res => res.json())
+  .then(res => res.result.validators);
 
 const getValidators = () =>
   fetch(`${config.stargate}/staking/validators`)
-    .then(res => res.json())
-    .then(res => {
-      if (res.result) return res.result;
-      return res;
-    });
+  .then(res => res.json())
+  .then(res => {
+    if (res.result) return res.result;
+    return res;
+  });
 
 const getValidatorsUnbonding = () =>
   fetch(`${config.stargate}/staking/validators?status=unbonding`)
-    .then(res => res.json())
-    .then(res => {
-      if (res.result) return res.result;
-      return res;
-    });
+  .then(res => res.json())
+  .then(res => {
+    if (res.result) return res.result;
+    return res;
+  });
 
 const getValidator = validatorAddr =>
   fetch(`${config.stargate}/staking/validators/${validatorAddr}`)
-    .then(res => res.json())
-    .then(res => {
-      if (res.result) return res.result;
+  .then(res => res.json())
+  .then(res => {
+    if (res.result) return res.result;
 
-      return res;
-    });
+    return res;
+  });
 
 const getDelegations = validatorAddr =>
   fetch(`${config.stargate}/staking/validators/${validatorAddr}/delegations`)
-    .then(res => res.json())
-    .then(res => {
-      if (res.result) return res.result;
+  .then(res => res.json())
+  .then(res => {
+    if (res.result) return res.result;
 
-      return res;
-    });
+    return res;
+  });
 
 const getUnbondingDelegations = validatorAddr =>
   fetch(
     `${config.stargate}/staking/validators/${validatorAddr}/unbonding_delegations`
   )
-    .then(res => res.json())
-    .then(res => {
-      if (res.error) throw res.error;
+  .then(res => res.json())
+  .then(res => {
+    if (res.error) throw res.error;
 
-      return res.result;
-    });
+    return res.result;
+  });
 
 export default {
   Validator: {
@@ -101,8 +101,6 @@ export default {
       }).sort({
         height: -1
       });
-
-      console.log(rest)
 
       return rest;
     }
@@ -167,14 +165,14 @@ export default {
         ) {
           docs = docs.sort(
             (a, b) =>
-              a.commission.commission_rates.rate -
-              b.commission.commission_rates.rate
+            a.commission.commission_rates.rate -
+            b.commission.commission_rates.rate
           );
         } else {
           docs = docs.sort(
             (a, b) =>
-              b.commission.commission_rates.rate -
-              a.commission.commission_rates.rate
+            b.commission.commission_rates.rate -
+            a.commission.commission_rates.rate
           );
         }
 

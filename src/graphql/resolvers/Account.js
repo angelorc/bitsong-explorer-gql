@@ -1,7 +1,7 @@
 import config from "../../config";
 import fetch from "node-fetch";
 import Account from "../../models/AccountModel";
-import Validator from "../../models/ValidatorModel"
+import Validator from "../../models/ValidatorModel";
 
 const getDelegations = delegatorAddr =>
   fetch(`${config.stargate}/staking/delegators/${delegatorAddr}/delegations`)
@@ -109,11 +109,11 @@ export default {
             throw response.error;
           }
 
-          if (!response.result.total) {
-            return 0;
+          if (response.result && response.result.total === null) {
+            return [];
           }
 
-          return response.result.total
+          return response.result.total;
         });
     },
     commissions: account => {
@@ -159,7 +159,7 @@ export default {
   Query: {
     account: async (root, args) => {
       const address = args.address;
-      const validator = await Validator.findOne({ delegator_address: address })
+      const validator = await Validator.findOne({ delegator_address: address });
 
       if (!address) {
         throw Error("Invalid address");

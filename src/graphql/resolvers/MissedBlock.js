@@ -25,25 +25,33 @@ const bech32PubkeyToAddress = consensus_pubkey => {
 export default {
   MissedBlock: {
     validators: async data => {
-      const dbValidators = await Validator.find()
-      const btsgValidators = await getBitSongValidators()
+      if (data.length === 0) {
+        return data;
+      }
+
+      const dbValidators = await Validator.find();
+      const btsgValidators = await getBitSongValidators();
 
       const completedValidators = dbValidators.map(val => {
-        const data = btsgValidators.find(v => v.operator_address === val.operator_address)
+        const data = btsgValidators.find(
+          v => v.operator_address === val.operator_address
+        );
         return {
           ...val._doc,
           ...data
-        }
-      })
+        };
+      });
 
       return data.validators.map(val => {
-        const data = completedValidators.find(v => v.consensus_address === val.consensus_address)
+        const data = completedValidators.find(
+          v => v.consensus_address === val.consensus_address
+        );
         return {
           ...val,
           ...data
-        }
-      })
-    },
+        };
+      });
+    }
   },
   Query: {
     allMissedBlocks: async (_, args) => {
@@ -55,30 +63,29 @@ export default {
         if (args.filters.height) {
           query = {
             height: args.filters.height,
-            'missed_validators.1': { $exists: true }
+            "missed_validators.1": { $exists: true }
           };
         }
       }
 
-      const result = await Block.findOne(query)
+      const result = await Block.findOne(query);
 
       if (!result) {
-        return []
+        return [];
       }
 
       const validators = result.missed_validators.map(val => {
         return {
           consensus_address: val
-        }
-      })
+        };
+      });
 
       const resultData = {
         height: result.height,
         validators: validators
-      }
+      };
 
-      return resultData
-
+      return resultData;
     }
   }
 };
