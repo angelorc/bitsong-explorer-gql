@@ -119,8 +119,14 @@ export default {
     commissions: account => {
       if (!account.valoper) return null;
 
+      // TODO:
+      // Rewards pool
+      // `${config.stargate}/distribution/validators/${account.valoper}/outstanding_rewards`
+      // Validator commission <----- sostituire con questo endpoint
+      // `${config.stargate}localhost:1317/distribution/validators/${account.valoper}`
+
       return fetch(
-        `${config.stargate}/distribution/validators/${account.valoper}/outstanding_rewards`
+        `${config.stargate}/distribution/validators/${account.valoper}`
       )
         .then(res => {
           return res.json();
@@ -134,7 +140,7 @@ export default {
             return 0;
           }
 
-          return response.result;
+          return response.result.val_commission;
         });
     }
   },

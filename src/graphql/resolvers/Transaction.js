@@ -12,14 +12,9 @@ const TRANSACITON_ADDED = "TRANSACITON_ADDED";
 
 const listenToNewTransactions = callback => {
   return Transaction.watch().on("change", async data => {
-    const tx = await Transaction.findOne({
-        hash: data.fullDocument.hash
-      })
-      .populate("signatures")
-      .populate("msgs")
-      .exec();
-
-    callback(tx);
+    if (typeof data.fullDocument !== "undefined") {
+      callback(data.fullDocument)
+    }
   });
 };
 

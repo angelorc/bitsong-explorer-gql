@@ -6,7 +6,9 @@ import asyncify from 'callback-to-async-iterator';
 
 const listenToNewBlocks = (callback) => {
   return Block.watch().on('change', data => {
-    callback(data.fullDocument)
+    if (typeof data.fullDocument !== "undefined") {
+      callback(data.fullDocument)
+    }
   });
 }
 
