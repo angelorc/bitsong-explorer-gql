@@ -13,12 +13,7 @@ const validatorSchema = new Schema(
       type: String,
       index: true
     },
-    operator_address: {
-      type: String,
-      required: true,
-      index: true
-    },
-    delegator_address: {
+    consensus_address: {
       type: String,
       index: true
     },
@@ -27,64 +22,14 @@ const validatorSchema = new Schema(
       required: true,
       index: true
     },
-    jailed: {
-      type: Boolean,
-      default: false,
-      required: true
+    operator_address: {
+      type: String,
+      required: true,
+      index: true
     },
-    status: {
-      type: Number,
-      default: 2,
-      required: true
-    },
-    tokens: {
-      type: String
-    },
-    delegator_shares: {
-      type: String
-    },
-    description: {
-      moniker: {
-        type: String,
-        index: true
-      },
-      identity: {
-        type: String
-      },
-      website: {
-        type: String
-      },
-      security_contact: {
-        type: String
-      },
-      details: {
-        type: String
-      }
-    },
-    unbonding_height: {
-      type: String
-    },
-    unbonding_time: {
-      type: String
-    },
-    commission: {
-      commission_rates: {
-        rate: {
-          type: String
-        },
-        max_rate: {
-          type: String
-        },
-        max_change_rate: {
-          type: String
-        }
-      },
-      update_time: {
-        type: String
-      }
-    },
-    min_self_delegation: {
-      type: String
+    delegator_address: {
+      type: String,
+      index: true
     }
   },
   {
