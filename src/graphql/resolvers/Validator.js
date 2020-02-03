@@ -54,6 +54,14 @@ const getValidatorsUnbonding = () =>
       return res;
     });
 
+const getValidatorsUnbonded = () =>
+  fetch(`${config.stargate}/staking/validators?status=unbonded`)
+    .then(res => res.json())
+    .then(res => {
+      if (res.result) return res.result;
+      return res;
+    });
+
 const getValidator = validatorAddr =>
   fetch(`${config.stargate}/staking/validators/${validatorAddr}`)
     .then(res => res.json())
@@ -131,6 +139,7 @@ export default {
         const tendermintValidators = await getTendermintValidators();
         const btsgValidators = await getValidators()
         const btsgValidatorsUnbonding = await getValidatorsUnbonding()
+        const btsgValidatorsUnbonded = await getValidatorsUnbonded()
         let docs = results.docs.map(doc => {
           const tendermintData = tendermintValidators.find(
             v => v.address === bech32PubkeyToAddress(doc.consensus_pubkey)
@@ -144,11 +153,16 @@ export default {
             v => v.operator_address === doc.operator_address
           );
 
+          const btsg3data = btsgValidatorsUnbonded.find(
+            v => v.operator_address === doc.operator_address
+          );
+
           return {
             ...doc._doc,
             ...tendermintData,
             ...btsgData,
-            ...btsg2data
+            ...btsg2data,
+            ...btsg3data,
           };
         });
 
@@ -194,6 +208,7 @@ export default {
         const tendermintValidators = await getTendermintValidators();
         const btsgValidators = await getValidators()
         const btsgValidatorsUnbonding = await getValidatorsUnbonding()
+        const btsgValidatorsUnbonded = await getValidatorsUnbonded()
         const validator = await Validator.findOne({
           operator_address: args.operatorAddress
         });
@@ -208,11 +223,16 @@ export default {
           v => v.operator_address === validator.operator_address
         );
 
+        const btsg3data = btsgValidatorsUnbonded.find(
+          v => v.operator_address === validator.operator_address
+        );
+
         return {
           ...tendermintData,
           ...validator._doc,
           ...btsgData,
-          ...btsg2data
+          ...btsg2data,
+          ...btsg3data
         };
       } catch (err) {
         throw err;
