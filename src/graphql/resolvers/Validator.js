@@ -213,6 +213,8 @@ export default {
           operator_address: args.operatorAddress
         });
 
+        console.log(validator)
+
         let tendermintData = {}
 
         if (validator.consensus_pubkey) {
