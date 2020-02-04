@@ -212,9 +212,15 @@ export default {
         const validator = await Validator.findOne({
           operator_address: args.operatorAddress
         });
-        const tendermintData = tendermintValidators.find(
-          v => v.address === bech32PubkeyToAddress(validator.consensus_pubkey)
-        );
+
+        let tendermintData = {}
+
+        if (validator.consensus_pubkey) {
+          tendermintData = tendermintValidators.find(
+            v => v.address === bech32PubkeyToAddress(validator.consensus_pubkey)
+          );
+        }
+
         const btsgData = btsgValidators.find(
           v => v.operator_address === validator.operator_address
         );

@@ -68,8 +68,6 @@ export default {
 
       // { '$or': [{'signatures.address': 'bitsong1ttsse04t2n9z4llnmrdjh9lrq45tp829cg6j5g'},{'messages.value.to_address': 'bitsong1ttsse04t2n9z4llnmrdjh9lrq45tp829cg6j5g'}]}
 
-
-
       const results = await Transaction.paginate(query, {
         page: args.pagination.page,
         limit: args.pagination.limit,
