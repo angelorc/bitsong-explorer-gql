@@ -69,6 +69,8 @@ export default {
         }
       }
 
+      console.log(query)
+
       const results = await Transaction.paginate(query, {
         page: args.pagination.page,
         limit: args.pagination.limit,
