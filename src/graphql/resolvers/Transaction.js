@@ -55,7 +55,9 @@ export default {
         if (args.filters.address) {
           query = {
             ...query,
-            "signatures.address": args.filters.address,
+            $or: [{
+              "signatures.address": args.filters.address,
+            }],
             $or: [{
               "messages.value.to_recipient": args.filters.address
             }]
