@@ -173,7 +173,7 @@ export default {
 
       return {
         address: address,
-        valoper: validator._doc.operator_address
+        valoper: validator ? validator._doc.operator_address : null
       };
     }
   }
