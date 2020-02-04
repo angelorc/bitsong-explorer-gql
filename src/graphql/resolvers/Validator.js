@@ -205,6 +205,7 @@ export default {
     },
     validator: async (root, args, context) => {
       try {
+        // TODO: fix when validator is not in db https://testnet.explorebitsong.com/validators/bitsongvaloper1e49ukzltn6ue48zt2k7kp8es48qf2d4lhtquql
         const tendermintValidators = await getTendermintValidators();
         const btsgValidators = await getValidators()
         const btsgValidatorsUnbonding = await getValidatorsUnbonding()
@@ -213,15 +214,9 @@ export default {
           operator_address: args.operatorAddress
         });
 
-        console.log(validator)
-
-        let tendermintData = {}
-
-        if (validator.consensus_pubkey) {
-          tendermintData = tendermintValidators.find(
-            v => v.address === bech32PubkeyToAddress(validator.consensus_pubkey)
-          );
-        }
+        const tendermintData = tendermintValidators.find(
+          v => v.address === bech32PubkeyToAddress(validator.consensus_pubkey)
+        );
 
         const btsgData = btsgValidators.find(
           v => v.operator_address === validator.operator_address
