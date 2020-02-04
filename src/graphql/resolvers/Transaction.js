@@ -57,11 +57,7 @@ export default {
             ...query,
             "signatures.address": args.filters.address,
             $or: [{
-              "signatures.address": args.filters.address
-            }, {
               "messages.value.recipient": args.filters.address
-            }, {
-              "messages.value.sender": args.filters.address
             }]
           };
           /*query = {
