@@ -55,7 +55,9 @@ export default {
         if (args.filters.address) {
           query = {
             ...query,
-            "signatures.address": args.filters.address
+            $or: [{ "signatures.address": args.filters.address }, {
+              "messages.value.to_address": args.filters.address
+            }],
           };
           /*query = {
             ...query,
@@ -64,7 +66,9 @@ export default {
         }
       }
 
-      console.log(query)
+      // { '$or': [{'signatures.address': 'bitsong1ttsse04t2n9z4llnmrdjh9lrq45tp829cg6j5g'},{'messages.value.to_address': 'bitsong1ttsse04t2n9z4llnmrdjh9lrq45tp829cg6j5g'}]}
+
+
 
       const results = await Transaction.paginate(query, {
         page: args.pagination.page,
@@ -73,6 +77,7 @@ export default {
           [args.sort.field]: args.sort.direction
         }
       });
+
 
       debugger;
 
