@@ -55,12 +55,10 @@ export default {
         if (args.filters.address) {
           query = {
             ...query,
+            "signatures.address": args.filters.address,
             $or: [{
-              "signatures.address": args.filters.address,
-            }],
-            $or: [{
-              "messages.value.recipient": args.filters.address
-            }],
+              "messages.value.to_recipient": args.filters.address
+            }]
           };
           /*query = {
             ...query,
