@@ -5,37 +5,37 @@ import Validator from "../../models/ValidatorModel";
 
 const getDelegations = delegatorAddr =>
   fetch(`${config.stargate}/staking/delegators/${delegatorAddr}/delegations`)
-    .then(res => res.json())
-    .then(res => {
-      if (res.error) throw res.error;
+  .then(res => res.json())
+  .then(res => {
+    if (res.error) throw res.error;
 
-      return res.result;
-    });
+    return res.result;
+  });
 
 const getUnbondingDelegations = delegatorAddr =>
   fetch(
     `${config.stargate}/staking/delegators/${delegatorAddr}/unbonding_delegations`
   )
-    .then(res => res.json())
-    .then(res => {
-      if (res.error) throw res.error;
+  .then(res => res.json())
+  .then(res => {
+    if (res.error) throw res.error;
 
-      return res.result;
-    });
+    return res.result;
+  });
 
 const getRedelegations = delegatorAddr =>
   fetch(`${config.stargate}/staking/redelegations`)
-    .then(res => res.json())
-    .then(res => {
-      if (res.error) throw res.error;
+  .then(res => res.json())
+  .then(res => {
+    if (res.error) throw res.error;
 
-      return res.result;
-    });
+    return res.result;
+  });
 
 export default {
   Balances: {
     available: account => {
-      return fetch(`${config.stargate}/bank/balances/${account.address}`)
+      const response = fetch(`${config.stargate}/bank/balances/${account.address}`)
         .then(res => res.json())
         .then(response => {
           if (response.error) {
@@ -48,11 +48,20 @@ export default {
 
           return response.result;
         });
+
+      if (!response.result) {
+        return {
+          amount: 0,
+          denom: "ubtsg"
+        }
+      }
+
+      return response
     },
     bonded: account => {
       return fetch(
-        `${config.stargate}/staking/delegators/${account.address}/delegations`
-      )
+          `${config.stargate}/staking/delegators/${account.address}/delegations`
+        )
         .then(res => res.json())
         .then(response => {
           if (response.error) {
@@ -74,8 +83,8 @@ export default {
     },
     unbonding: account => {
       return fetch(
-        `${config.stargate}/staking/delegators/${account.address}/unbonding_delegations`
-      )
+          `${config.stargate}/staking/delegators/${account.address}/unbonding_delegations`
+        )
         .then(res => res.json())
         .then(response => {
           if (response.error) {
@@ -101,8 +110,8 @@ export default {
     },
     rewards: account => {
       return fetch(
-        `${config.stargate}/distribution/delegators/${account.address}/rewards`
-      )
+          `${config.stargate}/distribution/delegators/${account.address}/rewards`
+        )
         .then(res => res.json())
         .then(response => {
           if (response.error) {
@@ -126,8 +135,8 @@ export default {
       // `${config.stargate}localhost:1317/distribution/validators/${account.valoper}`
 
       return fetch(
-        `${config.stargate}/distribution/validators/${account.valoper}`
-      )
+          `${config.stargate}/distribution/validators/${account.valoper}`
+        )
         .then(res => {
           return res.json();
         })
@@ -165,7 +174,9 @@ export default {
   Query: {
     account: async (root, args) => {
       const address = args.address;
-      const validator = await Validator.findOne({ delegator_address: address });
+      const validator = await Validator.findOne({
+        delegator_address: address
+      });
 
       if (!address) {
         throw Error("Invalid address");
