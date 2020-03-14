@@ -49,11 +49,11 @@ export default {
           return response.result;
         });
 
-      if (!response.result) {
-        return {
+      if (response.result.length === 0) {
+        return [{
           amount: 0,
           denom: "ubtsg"
-        }
+        }]
       }
 
       return response
