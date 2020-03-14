@@ -109,7 +109,7 @@ export default {
         });
     },
     rewards: account => {
-      return fetch(
+      const response = fetch(
           `${config.stargate}/distribution/delegators/${account.address}/rewards`
         )
         .then(res => res.json())
@@ -124,6 +124,15 @@ export default {
 
           return response.result.total;
         });
+
+      if (response.result === undefined) {
+        return [{
+          amount: 0,
+          denom: "ubtsg"
+        }]
+      }
+
+      return response
     },
     commissions: account => {
       if (!account.valoper) return null;
