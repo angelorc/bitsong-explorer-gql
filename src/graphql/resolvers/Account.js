@@ -5,37 +5,37 @@ import Validator from "../../models/ValidatorModel";
 
 const getDelegations = delegatorAddr =>
   fetch(`${config.stargate}/staking/delegators/${delegatorAddr}/delegations`)
-  .then(res => res.json())
-  .then(res => {
-    if (res.error) throw res.error;
+    .then(res => res.json())
+    .then(res => {
+      if (res.error) throw res.error;
 
-    return res.result;
-  });
+      return res.result;
+    });
 
 const getUnbondingDelegations = delegatorAddr =>
   fetch(
     `${config.stargate}/staking/delegators/${delegatorAddr}/unbonding_delegations`
   )
-  .then(res => res.json())
-  .then(res => {
-    if (res.error) throw res.error;
+    .then(res => res.json())
+    .then(res => {
+      if (res.error) throw res.error;
 
-    return res.result;
-  });
+      return res.result;
+    });
 
 const getRedelegations = delegatorAddr =>
   fetch(`${config.stargate}/staking/redelegations`)
-  .then(res => res.json())
-  .then(res => {
-    if (res.error) throw res.error;
+    .then(res => res.json())
+    .then(res => {
+      if (res.error) throw res.error;
 
-    return res.result;
-  });
+      return res.result;
+    });
 
 export default {
   Balances: {
-    available: account => {
-      const response = fetch(`${config.stargate}/bank/balances/${account.address}`)
+    available: async account => {
+      const response = await fetch(`${config.stargate}/bank/balances/${account.address}`)
         .then(res => res.json())
         .then(response => {
           if (response.error) {
@@ -49,19 +49,18 @@ export default {
           return response.result;
         });
 
-      if (response.result === undefined) {
-        return [{
-          amount: 0,
-          denom: "ubtsg"
-        }]
+      if (response === 0) {
+        return [
+          { denom: "ubtsg", amount: "0" }
+        ]
       }
 
       return response
     },
-    bonded: account => {
-      return fetch(
-          `${config.stargate}/staking/delegators/${account.address}/delegations`
-        )
+    bonded: async account => {
+      return await fetch(
+        `${config.stargate}/staking/delegators/${account.address}/delegations`
+      )
         .then(res => res.json())
         .then(response => {
           if (response.error) {
@@ -81,10 +80,10 @@ export default {
           return bondedBalance;
         });
     },
-    unbonding: account => {
-      return fetch(
-          `${config.stargate}/staking/delegators/${account.address}/unbonding_delegations`
-        )
+    unbonding: async account => {
+      return await fetch(
+        `${config.stargate}/staking/delegators/${account.address}/unbonding_delegations`
+      )
         .then(res => res.json())
         .then(response => {
           if (response.error) {
@@ -108,10 +107,10 @@ export default {
           return unbondingBalance;
         });
     },
-    rewards: account => {
-      const response = fetch(
-          `${config.stargate}/distribution/delegators/${account.address}/rewards`
-        )
+    rewards: async account => {
+      const response = await fetch(
+        `${config.stargate}/distribution/delegators/${account.address}/rewards`
+      )
         .then(res => res.json())
         .then(response => {
           if (response.error) {
@@ -125,16 +124,15 @@ export default {
           return response.result.total;
         });
 
-      if (response.result === undefined) {
-        return [{
-          amount: 0,
-          denom: "ubtsg"
-        }]
+      if (response.length === 0) {
+        return [
+          { denom: "ubtsg", amount: "0" }
+        ]
       }
 
       return response
     },
-    commissions: account => {
+    commissions: async account => {
       if (!account.valoper) return null;
 
       // TODO:
@@ -143,9 +141,9 @@ export default {
       // Validator commission <----- sostituire con questo endpoint
       // `${config.stargate}localhost:1317/distribution/validators/${account.valoper}`
 
-      return fetch(
-          `${config.stargate}/distribution/validators/${account.valoper}`
-        )
+      return await fetch(
+        `${config.stargate}/distribution/validators/${account.valoper}`
+      )
         .then(res => {
           return res.json();
         })
