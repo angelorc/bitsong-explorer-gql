@@ -49,7 +49,7 @@ export default {
           return response.result;
         });
 
-      if (response.result.length === 0) {
+      if (response.result === undefined) {
         return [{
           amount: 0,
           denom: "ubtsg"
