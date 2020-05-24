@@ -141,11 +141,14 @@ export default {
         const btsgValidatorsUnbonding = await getValidatorsUnbonding()
         const btsgValidatorsUnbonded = await getValidatorsUnbonded()
         let docs = results.docs.map(doc => {
-          console.log(tendermintValidators)
-          console.log(doc.consensus_pubkey)
-          const tendermintData = tendermintValidators.find(
-            v => v.address === bech32PubkeyToAddress(doc.consensus_pubkey)
-          );
+          //console.log(tendermintValidators)
+          //console.log(doc.consensus_pubkey)
+          let tendermintData = null
+          if (typeof doc.consensus_pubkey != undefined) {
+            tendermintData = tendermintValidators.find(
+              v => v.address === bech32PubkeyToAddress(doc.consensus_pubkey)
+            );
+          }
 
           const btsgData = btsgValidators.find(
             v => v.operator_address === doc.operator_address
