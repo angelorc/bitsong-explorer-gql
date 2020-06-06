@@ -8,7 +8,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "apollo-server-express": "^1.4.0",
+    "apollo-server-express": "^2.14.2",
     "bech32": "^1.1.3",
     "bluebird": "^3.5.5",
     "callback-to-async-iterator": "^1.1.1",
