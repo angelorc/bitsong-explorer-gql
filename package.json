@@ -25,7 +25,7 @@
     "mongoose": "^5.0.14",
     "mongoose-paginate": "^5.0.3",
     "morgan": "^1.9.0",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^2.6.1",
     "relay-mongodb-connection": "^2.1.0",
     "serve-favicon": "^2.5.0",
     "serve-static": "^1.13.2",
